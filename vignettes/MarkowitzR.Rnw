@@ -1,0 +1,969 @@
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Using the MarkowitzR Package}
+%\VignetteKeyword{Finance}
+%\VignetteKeyword{Markowitz}
+%\VignettePackage{MarkowitzR}
+\documentclass[10pt,a4paper,english]{article}
+
+% front matter%FOLDUP
+\usepackage[hyphens]{url}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+% for therefore
+\usepackage{amssymb}
+% for theorems?
+\usepackage{amsthm}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{example}{Example}[section]
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{caution}{Caution}
+\newtheorem*{note}{Note}
+
+% see http://tex.stackexchange.com/a/3034/2530
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
+\usepackage{hyperref}
+\usepackage[square,numbers]{natbib}
+%\usepackage[authoryear]{natbib}
+%\usepackage[iso]{datetime}
+%\usepackage{datetime}
+
+%compactitem and such:
+\usepackage[newitem,newenum,increaseonly]{paralist}
+
+\makeatletter
+\makeatother
+
+%\input{sr_defs.tex}
+\usepackage{MarkowitzR}
+
+%\providecommand{\sideWarning}[1][0.5]{\marginpar{\hfill\includegraphics[width=#1\marginparwidth]{warning}}}
+% see: https://stat.ethz.ch/pipermail/r-help/2007-November/144810.html
+\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+%\let\proglang=\textsf
+%\let\code=\texttt
+\newcommand{\CRANpkg}[1]{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
+\newcommand{\MarkowitzR}{\CRANpkg{MarkowitzR}\xspace}
+
+% knitr setup%FOLDUP
+
+<<'preamble', include=FALSE, warning=FALSE, message=FALSE, cache=FALSE>>=
+library(knitr)
+
+# set the knitr options ... for everyone!
+# if you unset this, then vignette build bonks. oh, joy.
+#opts_knit$set(progress=TRUE)
+opts_knit$set(eval.after='fig.cap')
+# for a package vignette, you do want to echo.
+# opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
+opts_chunk$set(warning=FALSE,message=FALSE)
+#opts_chunk$set(results="asis")
+opts_chunk$set(cache=TRUE,cache.path="cache/MarkowitzR")
+
+#opts_chunk$set(fig.path="figure/",dev=c("pdf","cairo_ps"))
+opts_chunk$set(fig.path="figure/MarkowitzR",dev=c("pdf"))
+opts_chunk$set(fig.width=5,fig.height=4,dpi=64)
+
+# doing this means that png files are made of figures;
+# the savings is small, and it looks like shit:
+#opts_chunk$set(fig.path="figure/",dev=c("png","pdf","cairo_ps"))
+#opts_chunk$set(fig.width=4,fig.height=4)
+# for figures? this is sweave-specific?
+#opts_knit$set(eps=TRUE)
+
+# this would be for figures:
+#opts_chunk$set(out.width='.8\\textwidth')
+# for text wrapping:
+options(width=64,digits=2)
+opts_chunk$set(size="small")
+opts_chunk$set(tidy=TRUE,tidy.opts=list(width.cutoff=50,keep.blank.line=TRUE))
+
+compile.time <- Sys.time()
+
+# from the environment
+
+# only recompute if FORCE_RECOMPUTE=True w/out case match.
+FORCE_RECOMPUTE <- 
+	(toupper(Sys.getenv('FORCE_RECOMPUTE',unset='False')) == "TRUE")
+
+# compiler flags!
+
+# not used yet
+LONG.FORM <- FALSE
+
+mc.resolution <- ifelse(LONG.FORM,1000,200)
+mc.resolution <- max(mc.resolution,100)
+
+library(MarkowitzR)
+
+gen_norm <- rnorm
+lseq <- function(from,to,length.out) { 
+	exp(seq(log(from),log(to),length.out = length.out))
+}
+@
+%UNFOLD
+    
+% SYMPY preamble%FOLDUP
+    
+    %\usepackage{graphicx} % Used to insert images
+    %\usepackage{adjustbox} % Used to constrain images to a maximum size 
+    \usepackage{color} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    %\usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    %\usepackage[utf8]{inputenc} % Allow utf-8 characters in the tex document
+    %\usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+		\usepackage{fancyvrb} % verbatim replacement that allows latex
+    %\usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range 
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    %\usepackage{longtable} % longtable support required by pandoc >1.10
+    
+
+    
+    
+    \definecolor{orange}{cmyk}{0,0.4,0.8,0.2}
+    \definecolor{darkorange}{rgb}{.71,0.21,0.01}
+    \definecolor{darkgreen}{rgb}{.12,.54,.11}
+    \definecolor{myteal}{rgb}{.26, .44, .56}
+    \definecolor{gray}{gray}{0.45}
+    \definecolor{lightgray}{gray}{.95}
+    \definecolor{mediumgray}{gray}{.8}
+    \definecolor{inputbackground}{rgb}{.95, .95, .85}
+    \definecolor{outputbackground}{rgb}{.95, .95, .95}
+    \definecolor{traceback}{rgb}{1, .95, .95}
+    % ansi colors
+    \definecolor{red}{rgb}{.6,0,0}
+    \definecolor{green}{rgb}{0,.65,0}
+    \definecolor{brown}{rgb}{0.6,0.6,0}
+    \definecolor{blue}{rgb}{0,.145,.698}
+    \definecolor{purple}{rgb}{.698,.145,.698}
+    \definecolor{cyan}{rgb}{0,.698,.698}
+    \definecolor{lightgray}{gray}{0.5}
+    
+    % bright ansi colors
+    \definecolor{darkgray}{gray}{0.25}
+    \definecolor{lightred}{rgb}{1.0,0.39,0.28}
+    \definecolor{lightgreen}{rgb}{0.48,0.99,0.0}
+    \definecolor{lightblue}{rgb}{0.53,0.81,0.92}
+    \definecolor{lightpurple}{rgb}{0.87,0.63,0.87}
+    \definecolor{lightcyan}{rgb}{0.5,1.0,0.83}
+    
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    
+    \DefineShortVerb[commandchars=\\\{\}]{\|}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatability definitions
+    \def\gt{>}
+    \def\lt{<}
+    
+
+    % Pygments definitions
+    
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\expandafter\def\csname PY@tok@gd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gu\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PY@tok@gs\endcsname{\let\PY@bf=\textbf}
+\expandafter\def\csname PY@tok@gr\endcsname{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@cm\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@vg\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@m\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@go\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\expandafter\def\csname PY@tok@ge\endcsname{\let\PY@it=\textit}
+\expandafter\def\csname PY@tok@vc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@il\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@cs\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gh\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@ni\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\expandafter\def\csname PY@tok@nl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@no\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@na\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\expandafter\def\csname PY@tok@nb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@ne\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\expandafter\def\csname PY@tok@nf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@si\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@s2\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@vi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@nt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nv\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@s1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sx\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@bp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@c1\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@kc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@c\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@mf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@err\endcsname{\def\PY@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PY@tok@kd\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ss\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@mo\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@kn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@mi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@gp\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@o\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@kr\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@s\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@kp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@w\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PY@tok@kt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\expandafter\def\csname PY@tok@ow\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@sb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@k\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@se\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sd\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % Exact colors from NB
+    \definecolor{incolor}{rgb}{0.0, 0.0, 0.5}
+    \definecolor{outcolor}{rgb}{0.545, 0.0, 0.0}
+
+
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=blue,
+      linkcolor=darkorange,
+      citecolor=darkgreen,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    %\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    %UNFOLD
+%UNFOLD
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% document incantations%FOLDUP
+\begin{document}
+
+\title{Using the \pkg{MarkowitzR} package}
+\author{Steven E. Pav \thanks{\email{shabbychef@gmail.com}}}
+%\date{\today, \currenttime}
+
+\maketitle
+%UNFOLD
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}%FOLDUP
+The \txtMP appears in the inverse of a certain matrix
+containing first and second moments of asset returns. Using this
+`weird trick', the asymptotic distribution of the 
+\txtMP can be found via the central limit theorem and delta method.
+This allows one to construct Wald statistics on the elements of the
+Markowitz portfolio or perform shrinkage on those elements.
+This derivation is more general than that of 
+Britten-Jones \cite{BrittenJones1999}, as it allows the use of 
+robust standard errors; can be extended to deal with hedged portfolios,
+conditional hetereskedasticity and expectation; allows estimation
+of the proportion of error due to mis-estimation of the covariance matrix.
+Use of this computatio via the \MarkowitzR package is illustrated.
+\end{abstract}%UNFOLD
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}%FOLDUP
+
+Given \nlatf assets with expected return \pvmu and covariance of return \pvsig,
+the `\txtMP', defined as 
+\begin{equation}
+\pportwopt \defeq \lambda \minvAB{\pvsig}{\pvmu}
+\end{equation}
+plays a special role in modern portfolio 
+theory. \cite{markowitz1952portfolio,brandt2009portfolio,GVK322224764}
+%It is known as the `efficient portfolio', the `tangency portfolio', 
+%and, somewhat informally, the `\txtMP'. 
+It appears, for various $\lambda$, in the solution to numerous
+portfolio optimization problems.  
+Besides the classic mean-variance formulation,
+it solves the (population) \txtSR maximization problem:
+\begin{equation}
+\max_{\pportw : \qform{\pvsig}{\pportw} \le \Rbuj^2} 
+\frac{\trAB{\pportw}{\pvmu} - \rfr}{\sqrt{\qform{\pvsig}{\pportw}}},
+\label{eqn:opt_port_I}
+\end{equation}
+where $\rfr\ge 0$ is the risk-free, or `disastrous', rate of return, and 
+$\Rbuj > 0$ is some given `risk budget'. 
+The solution to this optimization problem is $\lambda \minvAB{\pvsig}{\pvmu}$,
+where $\lambda = \fracc{\Rbuj}{\sqrt{\qiform{\pvsig}{\pvmu}}}.$
+\nocite{markowitz1952portfolio}  % does not actually mention this portfolio?
+
+In practice, the \txtMP has a somewhat checkered history. 
+The population parameters \pvmu and \pvsig are not known and must
+be estimated from samples. Estimation error results in a feasible
+portfolio, \sportwopt, of dubious value. Michaud went so far as to call
+mean-variance optimization, 
+``error maximization.'' \cite{michaud1989markowitz}  
+It has been suggested that simple portfolio heuristics outperform the
+\txtMP in practice.  \cite{demiguel2009optimal}  
+%UNFOLD
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Examples}%FOLDUP
+
+\subsection{Code and Basic Usage}%FOLDUP
+Here I present example usage of the above results in R. In each
+scenario, the results of primary interest are the marginal Wald
+test statistics under the null of zero weight in the \txtMP. 
+The basic procedure is listed here:
+
+%Empirically, the marginal Wald test for zero weighting in the 
+%\txtMP based on this approximation are nearly
+%identical to the \tstat-statistics produced by the procedure
+%of Britten-Jones, as shown below. \cite{BrittenJones1999} 
+
+<<'the_proc',echo=TRUE>>=
+require(gtools)
+# set the colnames of X appropriately
+set.coln <- defmacro(X,expr={
+	if (is.null(colnames(X))) {
+		colnames(X) <- paste0(deparse(substitute(X),nlines=1),1:(dim(X)[2]))
+  }})
+# compute Wald scores via this trick
+wtrick.ws <- function(rets,...) {
+	set.coln(rets)
+	# 'flipping the sign on returns is idiomatic'
+	asymv <- itheta_vcov(- as.matrix(rets),...)
+	qidx <- 2:asymv$pp
+	wald.s <- asymv$mu[qidx] / sqrt(diag(asymv$Ohat[2:asymv$pp,2:asymv$pp]))
+  names(wald.s) <- colnames(rets)
+	return(wald.s)
+}
+# t-stat via Britten-Jones procedure
+bjones.ts <- function(rets) {
+	set.coln(rets)
+	ones.vec <- matrix(1,nrow=dim(rets)[1],ncol=1)
+	rets <- as.matrix(rets)
+	bjones.mod <- lm(ones.vec ~ rets - 1)
+	bjones.sum <- summary(bjones.mod)
+	retval <- bjones.sum$coefficients[,3]
+  names(retval) <- colnames(rets)
+	return(retval)
+}
+# compare the two procedures
+do.both <- function(rets,...) {
+	set.coln(rets)
+	retval <- rbind(bjones.ts(rets),wtrick.ws(rets,...))
+	rownames(retval) <- c("Britten Jones t-stat","weird trick Wald stat")
+	return(retval)
+}
+@
+
+First some example usage under randomly generated data to 
+compare against the \tstat-statistics produced by the Britten-Jones 
+procedure. \cite{BrittenJones1999} The tests are performed on 256
+observations of 7 assets, first under the null of zero mean returns,
+then under the alternative. The results of these two tests
+are very close, as is typically the case under Gaussian returns when
+the ratio of days to assets is large. This is a way of ``sanity checking''
+the Wald test implementation. 
+
+<<'me_vs_bjones',echo=TRUE>>=
+nday <- 256
+nstk <- 7
+
+# under the null: all returns are zero mean;
+set.seed(as.integer(charToRaw("04fa9bec-f342-47c0-85a6-692324a25f3f")))
+rets <- matrix(rnorm(nday * nstk),nrow=nday)
+
+# compare them:
+print(do.both(rets))
+@
+
+%# repeat under the alternative;
+%set.seed(as.integer(charToRaw("1289daaa-6060-4901-bc90-c5245bcf73f1")))
+%zero.rets <- t(matrix(rnorm(nday * nstk),nrow=nday))
+%mu.vals <- (1/sqrt(253)) * seq(-1,1,length.out=nstk) 
+%rets <- t(zero.rets + mu.vals)
+
+%# compare them:
+%print(do.both(rets))
+%UNFOLD
+
+\subsection{Fama French Three Portfolios}
+
+I download the monthly Fama French 3-factor portfolio returns
+from \CRANpkg{Quandl} \cite{Quandl},
+compute the returns excess the risk free rate, then call both
+procedures on the returns. I also use robust standard
+errors \cite{Zeileis:2004:JSSOBK:v11i10} via the \CRANpkg{sandwich}
+package.
+
+% MOCK it up.
+<<'ff_load',eval=FALSE,echo=TRUE>>=
+ff.data <- read.csv(paste0('http://www.quandl.com/api/v1/datasets/',
+'KFRENCH/FACTORS_M.csv?&trim_start=1926-07-31&trim_end=2013-10-31',
+'&sort_order=asc'), colClasses=c('Month'='Date'))
+
+rownames(ff.data) <- ff.data$Month
+ff.data <- ff.data[,! (colnames(ff.data) %in% c("Month"))]
+# will not matter, but convert pcts:
+ff.data <- 1e-2 * ff.data
+@
+<<'ff_load_sneaky',eval=TRUE,echo=FALSE>>=
+# sleight of hand to load precomputed data instead.
+fname <- system.file('extdata','ff_data.rda',package='MarkowitzR')
+if (fname == "") {
+	fname <- 'ff_data.rda'
+}
+# poofs ff.data here
+load(fname)
+@
+<<'ff_process',echo=TRUE,cachc=TRUE>>=
+rfr <- ff.data[,'RF']
+
+ff.ret <- cbind(ff.data[,'Mkt.RF'],
+	ff.data[,c('HML','SMB')] - rep(rfr,2))
+colnames(ff.ret)[1] <- "MKT"
+# try both procedures:
+print(do.both(ff.ret))
+# try with robust s.e.
+require(sandwich)
+print(do.both(ff.ret,vcov.func=sandwich::vcovHAC))
+@
+
+The Wald statistics are slightly less optimistic than the
+Britten-Jones t-statistics for the long MKT and short SMB
+positions. This is amplified when the HAC estimator is used.
+
+I now compute a rolling estimate of volatility by taking the
+11 month FIR mean of the median absolute return of the three portfolios,
+delayed by one month. 
+%I then use the `constant' model of
+%\eqnref{cond_model_I}, \ie I apply the unconditional technique to
+%returns scaled by the quietude.
+I then assume a model of `constant maximal \txtSR,'
+where both \fvola[i] and \vfact[i] are the inverse 
+of this estimated volatility. We can simply apply the unconditional
+technique to returns divided by this estimated volatility.
+
+%<<'ff_data_arch',echo=TRUE,cache=FALSE>>=
+%# conditional heteroskedasticity
+%vola <- apply(abs(ff.ret),1,median)
+%vola <- xts(vola,order.by=time(ff.ret))
+%suppressWarnings(muvola <- zoo::rollmean(vola,k=11,align="right",
+%									 na.pad=TRUE))
+%quietude <- (lag(muvola,k=1)) ^ -1
+%colnames(quietude) <- c("quietude")
+%# center it as well, for later:
+%quietude.c <- quietude - mean(quietude,na.rm=TRUE)
+%
+%wt.ff.ret <- ff.ret * rep(quietude,dim(ff.ret)[2])
+%print(wtrick.ws(wt.ff.ret,vcov.func=sandwich::vcovHAC))
+%@
+
+%The Wald statistics are now more `confident' in the long MKT and
+%short SMB. I now load the Shiller price/earnings data, for use as a
+%conditional feature.  Here I load the data, and delay it by a month
+%so that the features are predictive of returns, instead of 
+%contemporaneous with them.
+%
+%<<'pe_data',echo=TRUE,cache=TRUE>>=
+%
+%read.https.csv <- function(url,...) {
+%	tpf <- tempfile()
+%	download.file(url,destfile=tpf, method="curl")
+%	retval <- read.csv(tpf,...)
+%	return(retval)
+%}
+%
+%shiller.data <- read.https.csv(paste0("https://raw.github.com/datasets/",
+%								"s-and-p-500/master/data/data.csv"),
+%															 stringsAsFactors=FALSE)
+%shill.xts <- xts(shiller.data[,!colnames(shiller.data) %in% c("Date")],
+%								 order.by=alignMonthly(as.Date(shiller.data$Date),include.weekends=TRUE))
+%
+%features <- lag(shill.xts[,"P.E10"],1)
+%features <- features[paste0(time(ff.ret)[1],"/",time(ff.ret)[dim(ff.ret)[1]])]
+%@
+%
+%This function computes the Wald statistics under the conditional expectation
+%model. It is assumed that the returns and features have already been weighted.
+%
+%<<'the_proc_two',echo=TRUE,cache=FALSE>>=
+%# conditional returns
+%wtrick.co.ws <- function(rets,feats,fit.intercept=TRUE,...) {
+%	f <- dim(feats)[2]
+%	p <- dim(rets)[2]
+%	set.coln(rets)
+%	set.coln(feats)
+%	XY <- cbind(as.matrix(feats),-as.matrix(rets))
+%	XY <- na.omit(XY)
+%	asymv <- itheta_vcov(XY,fit.intercept=fit.intercept,...)
+%
+%	ff <- as.numeric(fit.intercept) + f
+%
+%  # figure out indices of interest
+%	botidx <- 0:(ff-1) * p + sapply(0:(ff-1),function(n)sum((ff-n):ff))
+%	pidxs <- outer(1:p,botidx,"+") 
+%	dim(pidxs) <- c(length(pidxs),1)
+%
+%	asymv.WW <- asymv$mu[pidxs]
+%	asymv.Sg <- asymv$Ohat[pidxs,pidxs]
+%	retval <- asymv.WW / sqrt(diag(asymv.Sg))
+%	dim(retval) <- c(p,ff)
+%	rownames(retval) <- colnames(rets)
+%	colnames(retval)[(1:f) + as.numeric(fit.intercept)] <- colnames(feats)
+%	if (fit.intercept)
+%		colnames(retval)[1] <- "Intercept"
+%	retval <- t(retval)
+%	return(retval)
+%}
+%@
+%%# test them:
+%%X <- matrix(rnorm(1000*3),ncol=3)
+%%FF <- matrix(rnorm(dim(X)[1] * 2),ncol=2)
+%%print(wtrick.co.ws(X,FF)) 
+%%print(wtrick.co.ws(X,FF,fit.intercept=FALSE))
+%<<'misc_data',echo=FALSE,cache=TRUE>>=
+%
+%read.https.csv <- function(url,...) {
+%	tpf <- tempfile()
+%	download.file(url,destfile=tpf, method="curl")
+%	retval <- read.csv(tpf,...)
+%	return(retval)
+%}
+%
+%shiller.data <- read.https.csv("https://raw.github.com/datasets/s-and-p-500/master/data/data.csv",
+%															 stringsAsFactors=FALSE)
+%shill.xts <- xts(shiller.data[,!colnames(shiller.data) %in% c("Date")],
+%								 order.by=alignMonthly(as.Date(shiller.data$Date),include.weekends=TRUE))
+%
+%ff10.xts <- Quandl("KFRENCH/10_IND_PORTF_M",
+%	start_date="1926-07-31",end_date="2012-12-31",
+%	type="xts")
+%ff5.xts <- Quandl("KFRENCH/5_IND_PORTF_M",
+%	start_date="1926-07-31",end_date="2012-12-31",
+%	type="xts")
+%dp.xts <- Quandl("YALE/SP_PER10Y",
+%	start_date="1916-12-31",end_date="2013-12-31",
+%	type="xts")
+%@
+%
+%I delay the P/E data by a month, 
+%and center it. The Wald scores 
+%suggest a long MKT position and short SMB position in the
+%\txtMP, with a smaller position in MKT when the P/E ratio is above average.
+%
+%<<'ff_analysis_again',echo=TRUE,cache=FALSE>>=
+%# center it:
+%features.c <- features - mean(features,na.rm=TRUE)
+%print(wtrick.co.ws(wt.ff.ret,features.c,fit.intercept=TRUE,vcov.func=sandwich::vcovHAC))
+%@
+%The P/E ratio data is a very low frequency signal. Instead I use
+%the first difference of the P/E ratio as a feature:
+%<<'ff_analysis_thrice',echo=TRUE,cache=FALSE>>=
+%# delta p/e
+%d.features <- diff(features,k=1)
+%d.features[1] <- 0
+%colnames(d.features) <- paste("del",colnames(d.features)[1])
+%print(wtrick.co.ws(wt.ff.ret,d.features,fit.intercept=TRUE,vcov.func=sandwich::vcovHAC))
+%@
+%Here again a long MKT, short SMB portfolio is suggested; when the P/E ratio
+%increases, a SMB position is suggested. 
+%
+%Finally, since we have computed the covariance jointly of the 
+%\txtMP and the precision matrix, we can estimate the amount of error
+%in the \txtMP which is attributable to mis-estimation of the covariance.
+%The remainder we can attribute to mis-estimation of the mean vector, which,
+%is typically implicated as the leading effect. \cite{chopra1993effect}
+%Here, for each of the three members of the \txtMP, I estimate the squared
+%coefficient of multiple correlation, expressed as percents.
+%
+%<<'multiple_correlation',echo=TRUE,cache=FALSE>>=
+%# multiple correlation coefficients of portfolio
+%# error to precision errors.
+%mult.cor <- function(rets,...) {
+%	set.coln(rets)
+%	# 'flipping the sign on returns is idiomatic'
+%	asymv <- itheta_vcov(- as.matrix(rets),...)
+%	Ro <- cov2cor(asymv$Ohat)
+%	prec.idx <- (asymv$p+1):(dim(asymv$Ohat)[1])
+%	prec.Ro <- Ro[prec.idx,prec.idx]
+%	xcor <- Ro[2:asymv$p,prec.idx]
+%	R.sq <- diag(xcor %*% (solve(prec.Ro,t(xcor))))
+%}
+%print(signif(100 * mult.cor(ff.ret),digits=2))
+%@
+%<<'multiple_correlation_hidden',echo=FALSE,cache=FALSE>>=
+%first.v <- signif(100 * mult.cor(ff.ret),digits=2)[1]
+%@
+%We can claim, then, that approximately \Sexpr{first.v} percent of the 
+%error in the MKT position is due to mis-estimation of the precision
+%matrix. When robust standard errors are used, however, this number
+%doubles, an effect only partially mitigated by accounting for
+%heteroskedasticity under the 'constant maximal \txtSR' assumption:
+%<<'multiple_correlation_again',echo=TRUE,cache=FALSE>>=
+%print(signif(100 * mult.cor(ff.ret,vcov.func=sandwich::vcovHAC),digits=2))
+%print(signif(100 * mult.cor(wt.ff.ret,vcov.func=sandwich::vcovHAC),digits=2))
+%@
+%
+%%# oops. have to multiply by quietude in the returns?
+%%print(wtrick.co.ws(ff.ret,quietude,fit.intercept=FALSE,vcov.func=sandwich::vcovHAC))
+%%print(wtrick.co.ws(ff.ret,quietude,fit.intercept=TRUE,vcov.func=sandwich::vcovHAC))
+%%print(wtrick.co.ws(ff.ret,quietude.c,fit.intercept=TRUE,vcov.func=sandwich::vcovHAC))
+%%
+%%# conditional returns
+%%featr <- lag(ff.ret,k=1)
+%%print(wtrick.co.ws(ff.ret,featr,fit.intercept=TRUE,vcov.func=sandwich::vcovHAC))
+%%featrtime <- featr * rep(quietude,dim(featr)[2])
+%%
+%%print(wtrick.co.ws(wt.ff.ret,featrtime,fit.intercept=TRUE,vcov.func=sandwich::vcovHAC))
+
+
+% 2FIX: add examples here ... 
+%UNFOLD
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% bibliography%FOLDUP
+\nocite{markowitz1952portfolio,markowitz1999early,markowitz2012foundations}
+%\bibliographystyle{jss}
+%\bibliographystyle{siam}
+%\bibliographystyle{ieeetr}
+\bibliographystyle{plainnat}
+%\bibliographystyle{acm}
+\bibliography{MarkowitzR,rauto}
+%UNFOLD
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\appendix%FOLDUP
+
+%\section{Confirming the scalar Gaussian case}
+
+%\begin{example}%FOLDUP
+%To sanity check 
+%\theoremref{theta_asym_var_gaussian},
+%consider the $\nlatf = 1$ Gaussian case. In this case, 
+%$$
+%\fvech{\pvsm} = \asvec{1,\pmu,\psig^2 + \pmu^2},\quad\mbox{and}\quad
+%\fvech{\minv{\pvsm}} =
+ %\asvec{1 + \frac{\pmu^2}{\psig^2},- \frac{\pmu}{\psig^2},\oneby{\psig^2}}.
+%$$
+%Let $\smu, \ssig^2$ be the unbiased sample estimates. By well 
+%known results \cite{spiegel2007schaum}, $\smu$ and $\ssig^2$ are independent,
+%and have asymptotic variances of $\psig^2/\ssiz$ and $2\psig^4/\ssiz$ 
+%respectively. By the delta method, the asymptotic variance of
+%$\Unun \fvech{\svsm}$ and $\fvech{\minv{\svsm}}$ can be computed as
+%\begin{equation}
+%\begin{split}
+%\VAR{\Unun \fvech{\svsm}} &\rightsquigarrow 
+%\oneby{\ssiz}\qform{\twobytwossym{\psig^2}{0}{2\psig^4}}{\twobytwo{1}{2\pmu}{0}{1}},\\
+%&= \oneby{\ssiz}\twobytwossym{\psig^2}{2\pmu\psig^2}{4\pmu^2\psig^2 +
+%2\psig^4}.
+%\label{eqn:gauss_confirm_theta}
+%\end{split}
+%\end{equation}
+%\begin{equation}
+%\begin{split}
+%\VAR{\fvech{\minv{\svsm}}} &\rightsquigarrow 
+%\oneby{\ssiz}\qform{\twobytwossym{\psig^2}{0}{2\psig^4}}{\twobythree{\frac{2\pmu}{\psig^2}}{-\frac{1}{\psig^2}}{0}{-\frac{\pmu^2}{\psig^4}}{\frac{\pmu}{\psig^4}}{-\frac{1}{\psig^4}}},\\
+%&=
+%\oneby{\ssiz}\gram{\twobythree{2\psnr}{-\frac{1}{\psig}}{0}{-\sqrt{2}\psnr^2}{\sqrt{2}\frac{\psnr}{\psig}}{-\frac{\sqrt{2}}{\psig^2}}},\\
+%&= \oneby{\ssiz}\threebythreessym{2\psnr^2\wrapParens{2 + \psnr^2}}{-\frac{2\psnr}{\psig}\wrapParens{1+\psnr^2}}{2\frac{\psnr^2}{\psig^2}}{\frac{1 +
+%2\psnr^2}{\psig^2}}{-\frac{2\psnr}{\psig^3}}{\frac{2}{\psig^4}}.
+%\label{eqn:gauss_confirm_itheta}
+%\end{split}
+%\end{equation}
+
+%Now it remains to compute $\VAR{\Unun \fvech{\svsm}}$ via 
+%\theoremref{theta_asym_var_gaussian}, and then 
+%\VAR{\fvech{\minv{\svsm}}} via
+%\theoremref{inv_distribution}, and confirm they match the values above.
+%This is a rather tedious computation best left to a computer. Below is 
+%an excerpt of an iPython notebook using Sympy \cite{PER-GRA:2007,sympy}
+%which performs this computation. 
+%This notebook is available online. \cite{SEP2013example}
+
+%% SYMPY from here out%FOLDUP
+    %\begin{Verbatim}[commandchars=\\\{\}]
+%{\color{incolor}In [{\color{incolor}1}]:} \PY{c}{\PYZsh{} confirm the asymptotic distribution of Theta}
+        %\PY{c}{\PYZsh{} for scalar Gaussian case.}
+        %\PY{k+kn}{from} \PY{n+nn}{\PYZus{}\PYZus{}future\PYZus{}\PYZus{}} \PY{k+kn}{import} \PY{n}{division}
+        %\PY{k+kn}{from} \PY{n+nn}{sympy} \PY{k+kn}{import} \PY{o}{*}
+        %\PY{k+kn}{from} \PY{n+nn}{sympy.physics.quantum} \PY{k+kn}{import} \PY{n}{TensorProduct}
+        %\PY{n}{init\PYZus{}printing}\PY{p}{(}\PY{n}{use\PYZus{}unicode}\PY{o}{=}\PY{n+nb+bp}{False}\PY{p}{,} \PY{n}{wrap\PYZus{}line}\PY{o}{=}\PY{n+nb+bp}{False}\PY{p}{,} \PYZbs{}
+                      %\PY{n}{no\PYZus{}global}\PY{o}{=}\PY{n+nb+bp}{True}\PY{p}{)}
+        %\PY{n}{mu} \PY{o}{=} \PY{n}{symbols}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZbs{}}\PY{l+s}{mu}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+        %\PY{n}{sg} \PY{o}{=} \PY{n}{symbols}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZbs{}}\PY{l+s}{sigma}\PY{l+s}{\PYZsq{}}\PY{p}{)} 
+        %\PY{c}{\PYZsh{} the elimination, duplication and U\PYZus{}\PYZob{}\PYZhy{}1\PYZcb{} matrices:}
+        %\PY{n}{Elim} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{,}\PY{l+m+mi}{4}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}  \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}   \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+        %\PY{n}{Dupp} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{,}\PY{l+m+mi}{3}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+        %\PY{n}{Unun} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+m+mi}{3}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}  \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+        %\PY{k}{def} \PY{n+nf}{Qform}\PY{p}{(}\PY{n}{A}\PY{p}{,}\PY{n}{x}\PY{p}{)}\PY{p}{:}
+            %\PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}compute the quadratic form x\PYZsq{}Ax\PYZdq{}\PYZdq{}\PYZdq{}}
+            %\PY{k}{return} \PY{n}{x}\PY{o}{.}\PY{n}{transpose}\PY{p}{(}\PY{p}{)} \PY{o}{*} \PY{n}{A} \PY{o}{*} \PY{n}{x}
+%\end{Verbatim}
+
+    %\begin{Verbatim}[commandchars=\\\{\}]
+%{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{Theta} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{n}{mu}\PY{p}{,}\PY{n}{mu}\PY{p}{,}\PY{n}{mu}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2} \PY{o}{+} \PY{n}{sg}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{)}
+        %\PY{n}{Theta}
+%\end{Verbatim}
+%\texttt{\color{outcolor}Out[{\color{outcolor}2}]:}
+    
+    
+        %\begin{equation*}
+        %\left[\begin{matrix}1 & \mu\\\mu & \mu^{2} + \sigma^{2}\end{matrix}\right]
+        %\end{equation*}
+
+    
+
+    %\begin{Verbatim}[commandchars=\\\{\}]
+%{\color{incolor}In [{\color{incolor}3}]:} \PY{c}{\PYZsh{} compute tensor products and }
+        %\PY{c}{\PYZsh{} the derivative d vech(Theta\PYZca{}\PYZhy{}1) / d vech(Theta)}
+        %\PY{c}{\PYZsh{} see also \theoremref{inv_distribution}}
+        %\PY{n}{Theta\PYZus{}Theta} \PY{o}{=} \PY{n}{TensorProduct}\PY{p}{(}\PY{n}{Theta}\PY{p}{,}\PY{n}{Theta}\PY{p}{)}
+        %\PY{n}{iTheta\PYZus{}iTheta} \PY{o}{=} \PY{n}{TensorProduct}\PY{p}{(}\PY{n}{Theta}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)}\PY{p}{,}\PY{n}{Theta}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        %\PY{n}{theta\PYZus{}i\PYZus{}deriv} \PY{o}{=} \PY{n}{Elim} \PY{o}{*} \PY{p}{(}\PY{n}{iTheta\PYZus{}iTheta}\PY{p}{)} \PY{o}{*} \PY{n}{Dupp}
+%\end{Verbatim}
+
+    %\begin{Verbatim}[commandchars=\\\{\}]
+%{\color{incolor}In [{\color{incolor}4}]:} \PY{c}{\PYZsh{} towards \theoremref{theta_asym_var_gaussian}}
+        %\PY{n}{DTTD} \PY{o}{=} \PY{n}{Qform}\PY{p}{(}\PY{n}{Theta\PYZus{}Theta}\PY{p}{,}\PY{n}{Dupp}\PY{p}{)}
+        %\PY{n}{D\PYZus{}DTTD\PYZus{}D} \PY{o}{=} \PY{n}{Qform}\PY{p}{(}\PY{n}{DTTD}\PY{p}{,}\PY{n}{theta\PYZus{}i\PYZus{}deriv}\PY{p}{)}
+        %\PY{n}{iOmega} \PY{o}{=} \PY{n}{Qform}\PY{p}{(}\PY{n}{D\PYZus{}DTTD\PYZus{}D}\PY{p}{,}\PY{n}{Unun}\PY{o}{.}\PY{n}{transpose}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        %\PY{n}{Omega} \PY{o}{=} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{iOmega}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)}
+        %\PY{n}{simplify}\PY{p}{(}\PY{n}{Omega}\PY{p}{)}
+%\end{Verbatim}
+%\texttt{\color{outcolor}Out[{\color{outcolor}4}]:}
+    
+    
+        %\begin{equation*}
+        %\left[\begin{matrix}\sigma^{2} & 2 \mu \sigma^{2}\\2 \mu \sigma^{2} & 2 \sigma^{2} \left(2 \mu^{2} + \sigma^{2}\right)\end{matrix}\right]
+        %\end{equation*}
+
+    
+
+    %\begin{Verbatim}[commandchars=\\\{\}]
+%{\color{incolor}In [{\color{incolor}5}]:} \PY{c}{\PYZsh{} this matches the computation in \eqnref{gauss_confirm_theta}}
+        %\PY{c}{\PYZsh{} on to the inverse:}
+        %\PY{c}{\PYZsh{} actually use \theoremref{inv_distribution}}
+        %\PY{n}{theta\PYZus{}i\PYZus{}deriv\PYZus{}t} \PY{o}{=} \PY{n}{theta\PYZus{}i\PYZus{}deriv}\PY{o}{.}\PY{n}{transpose}\PY{p}{(}\PY{p}{)}
+        %\PY{n}{theta\PYZus{}inv\PYZus{}var} \PY{o}{=} \PY{n}{Qform}\PY{p}{(}\PY{n}{Qform}\PY{p}{(}\PY{n}{Omega}\PY{p}{,}\PY{n}{Unun}\PY{p}{)}\PY{p}{,}\PY{n}{theta\PYZus{}i\PYZus{}deriv\PYZus{}t}\PY{p}{)}
+        %\PY{n}{simplify}\PY{p}{(}\PY{n}{theta\PYZus{}inv\PYZus{}var}\PY{p}{)}
+%\end{Verbatim}
+%\texttt{\color{outcolor}Out[{\color{outcolor}5}]:}
+    
+    
+        %\begin{equation*}
+        %\left[\begin{matrix}\frac{2 \mu^{2}}{\sigma^{4}} \left(\mu^{2} + 2 \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{2 \mu^{2}}{\sigma^{4}}\\- \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{1}{\sigma^{4}} \left(2 \mu^{2} + \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}}\\\frac{2 \mu^{2}}{\sigma^{4}} & - \frac{2 \mu}{\sigma^{4}} & \frac{2}{\sigma^{4}}\end{matrix}\right]
+        %\end{equation*}
+
+    
+
+    %\begin{Verbatim}[commandchars=\\\{\}]
+%{\color{incolor}In [{\color{incolor}6}]:} \PY{c}{\PYZsh{} this matches the computation in \eqnref{gauss_confirm_itheta}}
+        %\PY{c}{\PYZsh{} now check \conjectureref{theta_asym_var_gaussian}}
+        %\PY{n}{conjec} \PY{o}{=} \PY{n}{Qform}\PY{p}{(}\PY{n}{Theta\PYZus{}Theta}\PY{p}{,}\PY{n}{Dupp}\PY{p}{)}
+        %\PY{n}{e1} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}
+        %\PY{n}{convar} \PY{o}{=} \PY{l+m+mi}{2} \PY{o}{*} \PY{p}{(}\PY{n}{conjec}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{e1} \PY{o}{*} \PY{n}{e1}\PY{o}{.}\PY{n}{transpose}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        %\PY{n}{simplify}\PY{p}{(}\PY{n}{convar}\PY{p}{)}
+%\end{Verbatim}
+%\texttt{\color{outcolor}Out[{\color{outcolor}6}]:}
+    
+    
+        %\begin{equation*}
+        %\left[\begin{matrix}\frac{2 \mu^{2}}{\sigma^{4}} \left(\mu^{2} + 2 \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{2 \mu^{2}}{\sigma^{4}}\\- \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{1}{\sigma^{4}} \left(2 \mu^{2} + \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}}\\\frac{2 \mu^{2}}{\sigma^{4}} & - \frac{2 \mu}{\sigma^{4}} & \frac{2}{\sigma^{4}}\end{matrix}\right]
+        %\end{equation*}
+
+    
+
+    %\begin{Verbatim}[commandchars=\\\{\}]
+%{\color{incolor}In [{\color{incolor}7}]:} \PY{c}{\PYZsh{} are they the same?}
+        %\PY{n}{simplify}\PY{p}{(}\PY{n}{theta\PYZus{}inv\PYZus{}var} \PY{o}{\PYZhy{}} \PY{n}{convar}\PY{p}{)}
+%\end{Verbatim}
+%\texttt{\color{outcolor}Out[{\color{outcolor}7}]:}
+    
+    
+        %\begin{equation*}
+        %\left[\begin{matrix}0 & 0 & 0\\0 & 0 & 0\\0 & 0 & 0\end{matrix}\right]
+        %\end{equation*}
+
+    
+
+
+    %%UNFOLD
+    
+%%%  OLD%FOLDUP
+    %%\begin{Verbatim}[commandchars=\\\{\}]
+%%{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{from} \PY{n+nn}{\PYZus{}\PYZus{}future\PYZus{}\PYZus{}} \PY{k+kn}{import} \PY{n}{division}
+        %%\PY{k+kn}{from} \PY{n+nn}{sympy} \PY{k+kn}{import} \PY{o}{*}
+        %%\PY{k+kn}{from} \PY{n+nn}{sympy.physics.quantum} \PY{k+kn}{import} \PY{n}{TensorProduct}
+        %%\PY{n}{init\PYZus{}printing}\PY{p}{(}\PY{n}{use\PYZus{}unicode}\PY{o}{=}\PY{n+nb+bp}{False}\PY{p}{,} \PY{n}{wrap\PYZus{}line}\PY{o}{=}\PY{n+nb+bp}{False}\PY{p}{,} \PY{n}{no\PYZus{}global}\PY{o}{=}\PY{n+nb+bp}{True}\PY{p}{)}
+        %%\PY{n}{mu} \PY{o}{=} \PY{n}{symbols}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZbs{}}\PY{l+s}{mu}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+        %%\PY{n}{sg} \PY{o}{=} \PY{n}{symbols}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZbs{}}\PY{l+s}{sigma}\PY{l+s}{\PYZsq{}}\PY{p}{)} 
+        %%\PY{c}{\PYZsh{} the elimination, duplication and U\PYZus{}\PYZob{}\PYZhy{}1\PYZcb{} matrices:}
+        %%\PY{n}{Elim} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{,}\PY{l+m+mi}{4}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}  \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}   \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+        %%\PY{n}{Dupp} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{,}\PY{l+m+mi}{3}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+        %%\PY{n}{Unun} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+m+mi}{3}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}  \PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+        %%\PY{k}{def} \PY{n+nf}{quad\PYZus{}form}\PY{p}{(}\PY{n}{A}\PY{p}{,}\PY{n}{x}\PY{p}{)}\PY{p}{:}
+            %%\PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}compute the quadratic form x\PYZsq{}Ax\PYZdq{}\PYZdq{}\PYZdq{}}
+            %%\PY{k}{return} \PY{n}{x}\PY{o}{.}\PY{n}{transpose}\PY{p}{(}\PY{p}{)} \PY{o}{*} \PY{n}{A} \PY{o}{*} \PY{n}{x}
+%%\end{Verbatim}
+
+    %%\begin{Verbatim}[commandchars=\\\{\}]
+%%{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{Theta} \PY{o}{=} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{n}{mu}\PY{p}{,}\PY{n}{mu}\PY{p}{,}\PY{n}{mu}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2} \PY{o}{+} \PY{n}{sg}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{)}
+        %%\PY{n}{Theta}
+%%\end{Verbatim}
+%%\texttt{\color{outcolor}Out[{\color{outcolor}2}]:}
+    
+    
+        %%\begin{equation*}
+        %%\left[\begin{matrix}1 & \mu\\\mu & \mu^{2} + \sigma^{2}\end{matrix}\right]
+        %%\end{equation*}
+
+    
+
+    %%\begin{Verbatim}[commandchars=\\\{\}]
+%%{\color{incolor}In [{\color{incolor}3}]:} \PY{c}{\PYZsh{} compute tensor products and }
+        %%\PY{c}{\PYZsh{} the derivative d vech(Theta\PYZca{}\PYZhy{}1) / d vech(Theta)}
+        %%\PY{n}{Theta\PYZus{}Theta} \PY{o}{=} \PY{n}{TensorProduct}\PY{p}{(}\PY{n}{Theta}\PY{p}{,}\PY{n}{Theta}\PY{p}{)}
+        %%\PY{n}{iTheta\PYZus{}iTheta} \PY{o}{=} \PY{n}{TensorProduct}\PY{p}{(}\PY{n}{Theta}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)}\PY{p}{,}\PY{n}{Theta}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        %%\PY{n}{theta\PYZus{}i\PYZus{}deriv} \PY{o}{=} \PY{n}{Elim} \PY{o}{*} \PY{p}{(}\PY{n}{iTheta\PYZus{}iTheta}\PY{p}{)} \PY{o}{*} \PY{n}{Dupp}
+%%\end{Verbatim}
+
+    %%\begin{Verbatim}[commandchars=\\\{\}]
+%%{\color{incolor}In [{\color{incolor}4}]:} \PY{c}{\PYZsh{} towards thm \ref{theorem:theta_asym_var_gaussian}}
+        %%\PY{n}{DTTD} \PY{o}{=} \PY{n}{quad\PYZus{}form}\PY{p}{(}\PY{n}{Theta\PYZus{}Theta}\PY{p}{,}\PY{n}{Dupp}\PY{p}{)}
+        %%\PY{n}{D\PYZus{}DTTD\PYZus{}D} \PY{o}{=} \PY{n}{quad\PYZus{}form}\PY{p}{(}\PY{n}{DTTD}\PY{p}{,}\PY{n}{theta\PYZus{}i\PYZus{}deriv}\PY{p}{)}
+        %%\PY{n}{iOmega} \PY{o}{=} \PY{n}{quad\PYZus{}form}\PY{p}{(}\PY{n}{D\PYZus{}DTTD\PYZus{}D}\PY{p}{,}\PY{n}{Unun}\PY{o}{.}\PY{n}{transpose}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        %%\PY{n}{Omega} \PY{o}{=} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{iOmega}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)}
+        %%\PY{n}{simplify}\PY{p}{(}\PY{n}{Omega}\PY{p}{)}
+%%\end{Verbatim}
+%%\texttt{\color{outcolor}Out[{\color{outcolor}4}]:}
+    
+    
+        %%\begin{equation*}
+        %%\left[\begin{matrix}\sigma^{2} & 2 \mu \sigma^{2}\\2 \mu \sigma^{2} & 2 \sigma^{2} \left(2 \mu^{2} + \sigma^{2}\right)\end{matrix}\right]
+        %%\end{equation*}
+
+%%This matches the computation in \eqnref{gauss_confirm_theta}. On to the
+%%inverse:
+    
+
+    %%\begin{Verbatim}[commandchars=\\\{\}]
+%%{\color{incolor}In [{\color{incolor}5}]:} \PY{c}{\PYZsh{} now use theorem \ref{theorem:inv_distribution}}
+        %%\PY{n}{theta\PYZus{}inv\PYZus{}var} \PY{o}{=} \PY{n}{quad\PYZus{}form}\PY{p}{(}\PY{n}{quad\PYZus{}form}\PY{p}{(}\PY{n}{Omega}\PY{p}{,}\PY{n}{Unun}\PY{p}{)}\PY{p}{,}\PY{n}{theta\PYZus{}i\PYZus{}deriv}\PY{o}{.}\PY{n}{transpose}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        %%\PY{n}{simplify}\PY{p}{(}\PY{n}{theta\PYZus{}inv\PYZus{}var}\PY{p}{)}
+%%\end{Verbatim}
+%%\texttt{\color{outcolor}Out[{\color{outcolor}5}]:}
+    
+    
+        %%\begin{equation*}
+        %%\left[\begin{matrix}\frac{2 \mu^{2}}{\sigma^{4}} \left(\mu^{2} + 2 \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{2 \mu^{2}}{\sigma^{4}}\\- \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{1}{\sigma^{4}} \left(2 \mu^{2} + \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}}\\\frac{2 \mu^{2}}{\sigma^{4}} & - \frac{2 \mu}{\sigma^{4}} & \frac{2}{\sigma^{4}}\end{matrix}\right]
+        %%\end{equation*}
+
+%%This matches the computation in \eqnref{gauss_confirm_itheta}.  Check
+%%the conjecture:
+    
+
+    %%\begin{Verbatim}[commandchars=\\\{\}]
+%%{\color{incolor}In [{\color{incolor}6}]:} \PY{c}{\PYZsh{} now conjecture \ref{conjecture:theta_asym_var_gaussian}}
+        %%\PY{n}{conjec} \PY{o}{=} \PY{n}{quad\PYZus{}form}\PY{p}{(}\PY{n}{Theta\PYZus{}Theta}\PY{p}{,}\PY{n}{Dupp}\PY{p}{)}
+        %%\PY{n}{convar} \PY{o}{=} \PY{l+m+mi}{2} \PY{o}{*} \PY{p}{(}\PY{n}{conjec}\PY{o}{.}\PY{n}{inv}\PY{p}{(}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{Matrix}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{,}\PY{l+m+mi}{3}\PY{p}{,}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}\PY{p}{)}
+        %%\PY{n}{simplify}\PY{p}{(}\PY{n}{convar}\PY{p}{)}
+%%\end{Verbatim}
+%%\texttt{\color{outcolor}Out[{\color{outcolor}6}]:}
+    
+    
+        %%\begin{equation*}
+        %%\left[\begin{matrix}\frac{2 \mu^{2}}{\sigma^{4}} \left(\mu^{2} + 2 \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{2 \mu^{2}}{\sigma^{4}}\\- \frac{2 \mu}{\sigma^{4}} \left(\mu^{2} + \sigma^{2}\right) & \frac{1}{\sigma^{4}} \left(2 \mu^{2} + \sigma^{2}\right) & - \frac{2 \mu}{\sigma^{4}}\\\frac{2 \mu^{2}}{\sigma^{4}} & - \frac{2 \mu}{\sigma^{4}} & \frac{2}{\sigma^{4}}\end{matrix}\right]
+        %%\end{equation*}
+
+    
+
+    %%\begin{Verbatim}[commandchars=\\\{\}]
+%%{\color{incolor}In [{\color{incolor}7}]:} \PY{c}{\PYZsh{} are they the same?}
+        %%\PY{n}{simplify}\PY{p}{(}\PY{n}{theta\PYZus{}inv\PYZus{}var} \PY{o}{\PYZhy{}} \PY{n}{convar}\PY{p}{)}
+%%\end{Verbatim}
+%%\texttt{\color{outcolor}Out[{\color{outcolor}7}]:}
+    
+    
+        %%\begin{equation*}
+        %%\left[\begin{matrix}0 & 0 & 0\\0 & 0 & 0\\0 & 0 & 0\end{matrix}\right]
+        %%\end{equation*}
+
+    %%%UNFOLD
+
+%\end{example}%UNFOLD
+%%UNFOLD
+
+\end{document}
+%for vim modeline: (do not edit)
+% vim:fdm=marker:fmr=FOLDUP,UNFOLD:cms=%%s:syn=rnoweb:ft=rnoweb:nu

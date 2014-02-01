@@ -1,0 +1,90 @@
+```{r setup,include=FALSE}
+# set the knitr options ... for everyone!
+# if you unset this, then vignette build bonks. oh, joy.
+#opts_knit$set(progress=TRUE)
+opts_knit$set(eval.after='fig.cap')
+# for a package vignette, you do want to echo.
+# opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
+opts_chunk$set(warning=FALSE,message=FALSE)
+#opts_chunk$set(results="asis")
+opts_chunk$set(cache=TRUE,cache.path="cache/")
+
+#opts_chunk$set(fig.path="figure/",dev=c("pdf","cairo_ps"))
+opts_chunk$set(fig.path="figure/",dev=c("pdf"))
+opts_chunk$set(fig.width=5,fig.height=4,dpi=64)
+
+# doing this means that png files are made of figures;
+# the savings is small, and it looks like shit:
+#opts_chunk$set(fig.path="figure/",dev=c("png","pdf","cairo_ps"))
+#opts_chunk$set(fig.width=4,fig.height=4)
+# for figures? this is sweave-specific?
+#opts_knit$set(eps=TRUE)
+
+# this would be for figures:
+#opts_chunk$set(out.width='.8\\textwidth')
+# for text wrapping:
+options(width=64,digits=2)
+opts_chunk$set(size="small")
+opts_chunk$set(tidy=TRUE,tidy.opts=list(width.cutoff=50,keep.blank.line=TRUE))
+
+#MarkowitzR.meta <- packageDescription('MarkowitzR')
+```
+
+# MarkowitzR
+
+A number of utilities for dealing with the Markowitz portfolio.
+
+-- Steven E. Pav, shabbychef@gmail.com
+
+## Installation
+
+This package may be installed from CRAN; the latest version may be
+found on [github](https://www.github.com/shabbychef/MarkowitzR "MarkowitzR")
+via devtools:
+
+```{r install,eval=FALSE,echo=TRUE}
+if (require(devtools)) {
+	# latest greatest
+	install_github(repo='MarkowitzR',username='shabbychef',ref='master')
+}
+```
+
+# Basic Usage
+
+## Inference on the Markowitz Portfolio
+
+The (negative) Markowitz portfolio appears in the inverse of
+the uncentered second moment matrix of the 'augmented' vector
+of returns. Via the Central Limit Theorem and the delta method
+the asymptotic distribution of the Markowitz portfolio can
+be found. From this, Wald statistics on the individual portfolio
+weights can be computed. Here I perform this computation on the
+portfolio consisting of three large cap stocks, and find
+that the Markowitz weighting of AAPL is significantly non-zero
+(modulo the selection biases in universe construction). The
+results are little changed when using a 'robust' covariance
+estimator.
+
+```{r marko_ism,eval=TRUE,echo=TRUE}
+some.rets <- get.rets(c("IBM","AAPL","XOM"),
+	from="2004-01-01",to="2013-08-01")
+
+ism.wald <- function(X,vcov.func=vcov) {
+	# negating returns is idiomatic to get + Markowitz
+	ism <- ism_vcov(- as.matrix(X),vcov.func=vcov.func)
+	ism.mu <- ism$mu[1:ism$p]
+	ism.Sg <- ism$Ohat[1:ism$p,1:ism$p]
+	retval <- ism.mu / sqrt(diag(ism.Sg))
+	dim(retval) <- c(ism$p,1)
+	rownames(retval) <- rownames(ism$mu)[1:ism$p]
+	return(retval)
+}
+
+wald.stats <- ism.wald(some.rets)
+print(t(wald.stats))
+
+if (require(sandwich)) {
+	wald.stats <- ism.wald(some.rets,vcov.func=sandwich::vcovHAC)
+	print(t(wald.stats))
+}
+```

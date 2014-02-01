@@ -1,0 +1,111 @@
+\name{itheta_vcov}
+\alias{itheta_vcov}
+\title{Compute variance covariance of Inverse 'Unified' Second Moment}
+\usage{
+itheta_vcov(X,vcov.func=vcov,fit.intercept=TRUE)
+}
+\arguments{
+  \item{X}{an \eqn{n \times p}{n x p} matrix of observed
+  returns.}
+
+  \item{vcov.func}{a function which takes an object of
+  class \code{lm}, and computes a variance-covariance
+  matrix. If equal to the string \code{"normal"}, we assume
+  multivariate normal returns.}
+
+  \item{fit.intercept}{a boolean controlling whether we add
+  a column of ones to the data, or fit the raw uncentered
+  second moment. For now, must be true when assuming normal
+  returns.}
+}
+\value{
+a list containing the following components: \item{mu}{a
+\eqn{q = (p+1)(p+2)/2} vector of 1 + squared maximum
+Sharpe, the negative Markowitz portfolio, then the vech'd
+precision matrix of the sample data} \item{Ohat}{the \eqn{q
+\times q}{q x q} estimated variance covariance matrix.}
+\item{n}{the number of rows in \code{X}.} \item{pp}{the
+number of assets plus \code{as.numeric(fit.intercept)}.}
+}
+\description{
+Computes the variance covariance matrix of the inverse
+unified second moment matrix.
+}
+\details{
+Given \eqn{p}-vector \eqn{x} with mean \eqn{\mu}{mu} and
+covariance, \eqn{\Sigma}{Sigma}, let \eqn{y} be \eqn{x}
+with a one prepended. Then let \eqn{\Theta = E\left(y
+y^{\top}\right)}{Theta = E[yy']}, the uncentered second
+moment matrix. The inverse of \eqn{\Theta}{Theta} contains
+the (negative) Markowitz portfolio and the precision
+matrix.
+
+Given \eqn{n} contemporaneous observations of
+\eqn{p}-vectors, stacked as rows in the \eqn{n \times p}{n
+x p} matrix \eqn{X}, this function estimates the mean and
+the asymptotic variance-covariance matrix of
+\eqn{\Theta^{-1}}{Theta^-1}.
+
+One may use the default method for computing covariance,
+via the \code{\link{vcov}} function, or via a 'fancy'
+estimator, like \code{sandwich:vcovHAC},
+\code{sandwich:vcovHC}, \emph{etc.}
+}
+\note{
+By flipping the sign of \eqn{X}, the inverse of
+\eqn{\Theta}{Theta} contains the \emph{positive} Markowitz
+portfolio and the precision matrix on \eqn{X}. Performing
+this transform before passing the data to this function
+should be considered idiomatic.
+
+Replaces similar functionality from SharpeR package, but
+with modified API.
+}
+\examples{
+X <- matrix(rnorm(1000*3),ncol=3)
+# putting in -X is idiomatic:
+ism <- itheta_vcov(-X)
+iSigmas.n <- itheta_vcov(-X,vcov.func="normal")
+iSigmas.n <- itheta_vcov(-X,fit.intercept=FALSE)
+# compute the marginal Wald test statistics:
+qidx <- 2:ism$pp
+wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
+
+# make it fat tailed:
+X <- matrix(rt(1000*3,df=5),ncol=3)
+ism <- itheta_vcov(X)
+qidx <- 2:ism$pp
+wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
+\dontrun{
+if (require(sandwich)) {
+ ism <- itheta_vcov(X,vcov.func=vcovHC)
+ qidx <- 2:ism$pp
+ wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
+}
+}
+# add some autocorrelation to X
+Xf <- filter(X,c(0.2),"recursive")
+colnames(Xf) <- colnames(X)
+ism <- itheta_vcov(Xf)
+qidx <- 2:ism$pp
+wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
+\dontrun{
+if (require(sandwich)) {
+	ism <- itheta_vcov(Xf,vcov.func=vcovHAC)
+ qidx <- 2:ism$pp
+ wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
+}
+}
+}
+\author{
+Steven E. Pav \email{shabbychef@gmail.com}
+}
+\references{
+Pav, S. E. "Asymptotic Distribution of the Markowitz
+Portfolio." 2013 \url{http://arxiv.org/abs/1312.0557}
+}
+\seealso{
+\code{\link{theta_vcov}}
+}
+\keyword{univar}
+

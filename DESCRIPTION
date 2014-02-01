@@ -1,0 +1,23 @@
+Package: MarkowitzR
+Maintainer: Steven E. Pav <shabbychef@gmail.com>
+Author: Steven E. Pav
+Authors@R: c(person(c("Steven", "E."), "Pav", role=c("aut","cre"),
+    email="shabbychef@gmail.com"))
+Version: 0.1402
+Date: 2014-01-31
+License: LGPL-3
+Title: Statistical significance of the Markowitz portfolio
+BugReports: https://github.com/shabbychef/MarkowitzR/issues
+Description: a collection of tools for analyzing significance of
+    Markowitz portfolios.
+Depends:
+    R (>= 3.0.2),
+    matrixcalc,
+    gtools
+Suggests:
+    sandwich,
+    SharpeR,
+    testthat,
+    knitr
+URL: http://www.r-project.org, https://github.com/shabbychef/MarkowitzR
+VignetteBuilder: knitr
