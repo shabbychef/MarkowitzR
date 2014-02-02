@@ -58,12 +58,9 @@ the uncentered second moment matrix of the 'augmented' vector
 of returns. Via the Central Limit Theorem and the delta method
 the asymptotic distribution of the Markowitz portfolio can
 be found. From this, Wald statistics on the individual portfolio
-weights can be computed. Here I perform this computation on the
-portfolio consisting of three large cap stocks, and find
-that the Markowitz weighting of AAPL is significantly non-zero
-(modulo the selection biases in universe construction). The
-results are little changed when using a 'robust' covariance
-estimator.
+weights can be computed. 
+
+Some example usage:
 
 ```{r marko_ism,cache=FALSE,eval=TRUE,echo=TRUE}
 set.seed(1001)
@@ -80,6 +77,12 @@ Strue <- cov(matrix(rnorm(100*4),ncol=4))
 Shalf <- chol(Strue)
 X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
 ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
+walds <- ism$W / sqrt(diag(ism$What))
+print(walds)
+# results are not much changed when using robust s.e.
+require(sandwich)
+
+ism <- marko_vcov(X,feat=Feat,vcov.func=sandwich::vcovHAC,fit.intercept=TRUE)
 walds <- ism$W / sqrt(diag(ism$What))
 print(walds)
 
