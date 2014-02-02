@@ -21,7 +21,7 @@
 # Author: Steven E. Pav
 # Comments: Steven E. Pav
 
-
+#source("utils.r")
 
 #' @title Estimate Markowitz Portfolio
 #'
@@ -58,7 +58,7 @@
 #'
 #' @usage
 #'
-#' marko_vcov(X,feat=null,vcov.func=vcov,fit.intercept=TRUE,weights=null,Jmat=null,Gmat=null)
+#' marko_vcov(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,weights=NULL,Jmat=NULL,Gmat=NULL)
 #'
 #' @param X an \eqn{n \times p}{n x p} matrix of observed returns.
 #' @param feat an \eqn{n \times f}{n x f} matrix of observed features.
@@ -82,29 +82,45 @@
 #' @return a list containing the following components:
 #' \item{mu}{Letting \eqn{r = f + p + fit.intercept}, this is a 
 #' \eqn{q = (r)(r+1)/2} vector...}
-#' \item{Ohat}{the \eqn{q \times q}{q x q} estimated variance covariance 
+#' \item{Ohat}{The \eqn{q \times q}{q x q} estimated variance covariance 
 #' matrix of \code{mu}.}
 #' \item{W}{The estimated Markowitz coefficient, a 
-#' \eqn{(f+fit.intercept) \times p}{(f+fit.intercept) x p} matrix.}
-#' \item{What}{the estimated variance covariance matrix of \code{vech(W)}.}
-#' \item{n}{the number of rows in \code{X}.}
-#' \item{ff}{the number of features plus \code{as.numeric(fit.intercept)}.}
-#' \item{p}{the number of assets.}
+#' \eqn{(fit.intercept + f) \times p}{(fit.intercept + f) x p} matrix. The
+#' first row corresponds to the intercept term if it is fit.}
+#' \item{What}{The estimated variance covariance matrix of \code{vech(W)}.
+#' Letting \eqn{s = (fit.intercept + f)p}, this is a \eqn{s \times s}{s x s}
+#' matrix.}
+#' \item{widxs}{The indices into \code{mu} giving \code{W}, and into
+#' \code{Ohat} giving \code{What}.}
+#' \item{n}{The number of rows in \code{X}.}
+#' \item{ff}{The number of features plus \code{as.numeric(fit.intercept)}.}
+#' \item{p}{The number of assets.}
 #'
 #' @seealso \code{\link{itheta_vcov}}, \code{\link{theta_vcov}}
-#' @rdname theta_vcov
+#' @rdname marko_vcov
 #' @export 
 #' @template etc
 #' @template ref-SEP13
 #'
 #' @examples 
+#' set.seed(1001)
 #' X <- matrix(rnorm(1000*3),ncol=3)
 #' ism <- marko_vcov(X,fit.intercept=TRUE)
 #' walds <- ism$W / sqrt(diag(ism$What))
 #'
-marko_vcov <- function(X,feat=null,vcov.func=vcov,fit.intercept=TRUE,
-											 weights=null,Jmat=null,Gmat=null) {
-	set.coln(rets)
+#' Feat <- matrix(rnorm(1000*2),ncol=2)
+#' Btrue <- 0.1 * matrix(rnorm(2*4),nrow=2)
+#' Xmean <- Feat %*% Btrue
+#' Strue <- cov(matrix(rnorm(100*4),ncol=4))
+#' Shalf <- chol(Strue)
+#' X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
+#' ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
+#' walds <- ism$W / sqrt(diag(ism$What))
+#'
+#'
+marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
+											 weights=NULL,Jmat=NULL,Gmat=NULL) {
+	set.coln(X)
 
 	if (!is.null(feat)) {
 		set.coln(feat)
@@ -112,11 +128,11 @@ marko_vcov <- function(X,feat=null,vcov.func=vcov,fit.intercept=TRUE,
 			# assume recycling will do this correctly!
 			feat <- feat * weights
 		}
-		f <- dim(feats)[2]
+		f <- dim(feat)[2]
 	} else {
 		f <- 0
 	}
-	p <- dim(rets)[2]
+	p <- dim(X)[2]
 	ff <- f + as.numeric(fit.intercept)
 
 	twidlize <- function(M) { rbind(cbind(diag(ff),0),cbind(0,M)) }
@@ -124,10 +140,14 @@ marko_vcov <- function(X,feat=null,vcov.func=vcov,fit.intercept=TRUE,
 	if (!is.null(Jmat)) 
 		Jtwid <- twidlize(Jmat) 
 	else
-		Jtwid <- null
+		Jtwid <- NULL
 
 	# compute second moment and variance/covariance;
-	XY <- cbind(as.matrix(feats),-as.matrix(rets))
+	if (is.null(feat)) {
+		XY <- -as.matrix(X)
+	} else {
+		XY <- cbind(as.matrix(feat),-as.matrix(X))
+	}
 	XY <- na.omit(XY)
 	asymv <- itheta_vcov(XY,fit.intercept=fit.intercept,
 											 vcov.func=vcov.func)
@@ -158,29 +178,34 @@ marko_vcov <- function(X,feat=null,vcov.func=vcov,fit.intercept=TRUE,
 
   # figure out indices of interest and then subselect!
 	botidx <- 0:(ff-1) * p + sapply(0:(ff-1),function(n)sum((ff-n):ff))
-	pidxs <- outer(1:p,botidx,"+") 
-	dim(pidxs) <- c(length(pidxs),1)
+	widxs <- outer(1:p,botidx,"+") 
+	dim(widxs) <- c(p,ff)
+	widxs <- t(widxs)
+	dim(widxs) <- c(length(widxs),1)
 
-	W <- mu[pidxs]
-	dim(W) <- c(p,ff)
-	rownames(W) <- colnames(rets)
-	colnames(W)[(1:f) + as.numeric(fit.intercept)] <- colnames(feats)
+	W <- mu[widxs]
+	dim(W) <- c(ff,p)
+	colnames(W) <- colnames(X)
+	rownames(W)[(1:f) + as.numeric(fit.intercept)] <- colnames(feat)
 	if (fit.intercept)
-		colnames(W)[1] <- "Intercept"
-	W <- t(W)
+		rownames(W)[1] <- "Intercept"
 
-	What <- Ohat[pidxs,pidxs]
+	What <- Ohat[widxs,widxs]
+	Wnames <- outer(rownames(W),colnames(W),FUN=function(x,y) { paste(x,"x",y) })
+	dim(Wnames) <- c(length(Wnames),1)
+	rownames(What) <- Wnames
+	colnames(What) <- Wnames
 
 	retval <- list(mu=diag(PTheta),
 								 Ohat=Ohat,
 								 W=W,
 								 What=What,
+								 widxs=widxs,
 								 n=asymv$n,
 								 p=p,
 								 ff=ff)
 
 	return(retval)
-
 }
 
 #for vim modeline: (do not edit)

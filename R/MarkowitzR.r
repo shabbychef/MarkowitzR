@@ -23,7 +23,9 @@
 
 #' Inference on the Markowitz portfolio.
 #' 
-#' @section Sharpe Ratio: 
+#' @section Markowitz Portfolio:
+#'
+#' 2FIX: fill this in...
 #'
 #' Suppose \eqn{x_i}{xi} are \eqn{n} independent draws of a normal random
 #' variable with mean \eqn{\mu}{mu} and variance \eqn{\sigma^2}{sigma^2}.

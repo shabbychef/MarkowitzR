@@ -21,6 +21,8 @@
 # Author: Steven E. Pav
 # Comments: Steven E. Pav
 
+#source("utils.r")
+
 #' @title Compute variance covariance of 'Unified' Second Moment 
 #'
 #' @description
@@ -57,13 +59,13 @@
 #'
 #' @return a list containing the following components:
 #' \item{mu}{a \eqn{q = (p+1)(p+2)/2} vector of 1, then the mean, 
-#' then the vech'd second moment of the sample data}
+#' then the vech'd second moment of the sample data.}
 #' \item{Ohat}{the \eqn{q \times q}{q x q} estimated variance covariance 
 #' matrix. When \code{fit.intercept} is true, the left column and top row
 #' are all zeros.}
 #' \item{n}{the number of rows in \code{X}.}
 #' \item{pp}{the number of assets plus \code{as.numeric(fit.intercept)}.}
-#' @seealso \code{\link{itheta_vcov}}
+#' @seealso \code{\link{itheta_vcov}}.
 #' @rdname theta_vcov
 #' @export 
 #' @template etc
@@ -190,7 +192,7 @@ theta_vcov <- function(X,vcov.func=vcov,fit.intercept=TRUE) {
 #' \item{n}{the number of rows in \code{X}.}
 #' \item{pp}{the number of assets plus \code{as.numeric(fit.intercept)}.}
 #' @keywords univar 
-#' @seealso \code{\link{theta_vcov}}
+#' @seealso \code{\link{theta_vcov}}, \code{\link{marko_vcov}}.
 #' @rdname itheta_vcov
 #' @export 
 #' @template etc
@@ -203,6 +205,10 @@ theta_vcov <- function(X,vcov.func=vcov,fit.intercept=TRUE) {
 #' portfolio and the precision matrix on \eqn{X}. Performing
 #' this transform before passing the data to this function
 #' should be considered idiomatic.
+#'
+#' @note
+#'
+#' A more general form of this function exists as \code{\link{marko_vcov}}.
 #'
 #' @note
 #'

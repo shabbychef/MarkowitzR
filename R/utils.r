@@ -24,7 +24,7 @@
 require(gtools)
 require(matrixcalc)
 
-# set the colnames of X appropriately
+# set the colnames of X appropriately, as a macro.
 set.coln <- gtools::defmacro(X,expr={
 	if (is.null(colnames(X))) {
 		colnames(X) <- paste0(deparse(substitute(X),nlines=1),1:(dim(X)[2]))
@@ -47,25 +47,27 @@ ivech <- function(x) {
 	return(M)
 }
 
-.xkronx <- function(xX) {
+# x kron x
+.xkronx <- function(x) {
 	return(x %x% x)
 }
-
-
+# quadratic form: x' Sigma x
 .qform <- function(Sigma,x) {
 	return(t(x) %*% (Sigma %*% x))
 }
+# 'outer' quadratic form: x Sigma x'
 .qoform <- function(Sigma,x) {
 	return(x %*% (Sigma %*% t(x)))
 }
+# Projection: A' (A Sigma A')^-1 A
 .Proj <- function(A,Sigma) {
 	return(t(A) %*% solve(.qoform(Sigma,A),A))
 }
 # computes proj(M,Theta) and 
 # (M'kronM') ((M Theta M')^-1 kron (M Theta M')^-1) (M kron M)
-# except if M is null, we assume it is the identity matrix
+# except if M is NULL, we assume it is the identity matrix
 # and so compute Theta^-1 and Theta^-1 kron Theta^-1
-.theta_grinder <- function(Theta,M=null) {
+.theta_grinder <- function(Theta,M=NULL) {
 	if (is.null(M)) {
 		iT <- solve(Theta)
 		iiT <- .xkronx(iT)
@@ -77,8 +79,6 @@ ivech <- function(x) {
 	retval <- list(iT=iT,iiT=iiT)
 	return(retval)
 }
-
-
 
 #for vim modeline: (do not edit)
 # vim:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:syn=r:ft=r

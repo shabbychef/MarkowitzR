@@ -41,51 +41,37 @@ estimator.
 
 
 ```r
-some.rets <- get.rets(c("IBM", "AAPL", "XOM"), from = "2004-01-01", 
-    to = "2013-08-01")
+set.seed(1001)
+X <- matrix(rnorm(1000 * 3), ncol = 3)
+ism <- marko_vcov(X, fit.intercept = TRUE)
+walds <- ism$W/sqrt(diag(ism$What))
+print(walds)
 ```
 
 ```
-## Error: could not find function "get.rets"
-```
-
-```r
-
-ism.wald <- function(X, vcov.func = vcov) {
-    # negating returns is idiomatic to get + Markowitz
-    ism <- ism_vcov(-as.matrix(X), vcov.func = vcov.func)
-    ism.mu <- ism$mu[1:ism$p]
-    ism.Sg <- ism$Ohat[1:ism$p, 1:ism$p]
-    retval <- ism.mu/sqrt(diag(ism.Sg))
-    dim(retval) <- c(ism$p, 1)
-    rownames(retval) <- rownames(ism$mu)[1:ism$p]
-    return(retval)
-}
-
-wald.stats <- ism.wald(some.rets)
-```
-
-```
-## Error: could not find function "ism_vcov"
-```
-
-```r
-print(t(wald.stats))
-```
-
-```
-## Error: object 'wald.stats' not found
+##              X1   X2  X3
+## Intercept -0.72 0.16 1.8
 ```
 
 ```r
 
-if (require(sandwich)) {
-    wald.stats <- ism.wald(some.rets, vcov.func = sandwich::vcovHAC)
-    print(t(wald.stats))
-}
+set.seed(1001)
+Feat <- matrix(rnorm(1000 * 2), ncol = 2)
+Btrue <- 0.1 * matrix(rnorm(2 * 4), nrow = 2)
+Xmean <- Feat %*% Btrue
+Strue <- cov(matrix(rnorm(100 * 4), ncol = 4))
+Shalf <- chol(Strue)
+X <- Xmean + matrix(rnorm(prod(dim(Xmean))), ncol = dim(Xmean)[2]) %*% 
+    Shalf
+ism <- marko_vcov(X, feat = Feat, fit.intercept = TRUE)
+walds <- ism$W/sqrt(diag(ism$What))
+print(walds)
 ```
 
 ```
-## Error: could not find function "ism_vcov"
+##              X1    X2    X3    X4
+## Intercept  0.31  0.11 -0.55 -0.47
+## Feat1      1.26 -1.80 -2.04 -4.11
+## Feat2     -5.35  1.60  1.97  6.26
 ```
 

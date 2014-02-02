@@ -65,26 +65,22 @@ that the Markowitz weighting of AAPL is significantly non-zero
 results are little changed when using a 'robust' covariance
 estimator.
 
-```{r marko_ism,eval=TRUE,echo=TRUE}
-some.rets <- get.rets(c("IBM","AAPL","XOM"),
-	from="2004-01-01",to="2013-08-01")
+```{r marko_ism,cache=FALSE,eval=TRUE,echo=TRUE}
+set.seed(1001)
+X <- matrix(rnorm(1000*3),ncol=3)
+ism <- marko_vcov(X,fit.intercept=TRUE)
+walds <- ism$W / sqrt(diag(ism$What))
+print(walds)
 
-ism.wald <- function(X,vcov.func=vcov) {
-	# negating returns is idiomatic to get + Markowitz
-	ism <- ism_vcov(- as.matrix(X),vcov.func=vcov.func)
-	ism.mu <- ism$mu[1:ism$p]
-	ism.Sg <- ism$Ohat[1:ism$p,1:ism$p]
-	retval <- ism.mu / sqrt(diag(ism.Sg))
-	dim(retval) <- c(ism$p,1)
-	rownames(retval) <- rownames(ism$mu)[1:ism$p]
-	return(retval)
-}
+set.seed(1001)
+Feat <- matrix(rnorm(1000*2),ncol=2)
+Btrue <- 0.1 * matrix(rnorm(2*4),nrow=2)
+Xmean <- Feat %*% Btrue
+Strue <- cov(matrix(rnorm(100*4),ncol=4))
+Shalf <- chol(Strue)
+X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
+ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
+walds <- ism$W / sqrt(diag(ism$What))
+print(walds)
 
-wald.stats <- ism.wald(some.rets)
-print(t(wald.stats))
-
-if (require(sandwich)) {
-	wald.stats <- ism.wald(some.rets,vcov.func=sandwich::vcovHAC)
-	print(t(wald.stats))
-}
 ```
