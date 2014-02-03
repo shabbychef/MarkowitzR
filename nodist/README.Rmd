@@ -117,4 +117,5 @@ dim(errs) <- c(length(errs),1)
 Zerr <- solve(t(chol(ism$What)),errs)
 print(summary(Zerr))
 qqnorm(Zerr)
+qqline(Zerr)
 ```
