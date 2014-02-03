@@ -9,8 +9,9 @@ opts_chunk$set(warning=FALSE,message=FALSE)
 #opts_chunk$set(results="asis")
 opts_chunk$set(cache=TRUE,cache.path="cache/")
 
-#opts_chunk$set(fig.path="figure/",dev=c("pdf","cairo_ps"))
-opts_chunk$set(fig.path="figure/",dev=c("pdf"))
+#opts_chunk$set(fig.path="github_extra/figure/",dev=c("pdf","cairo_ps"))
+#opts_chunk$set(fig.path="github_extra/figure/",dev=c("png","pdf"))
+opts_chunk$set(fig.path="github_extra/figure/",dev=c("png"))
 opts_chunk$set(fig.width=5,fig.height=4,dpi=64)
 
 # doing this means that png files are made of figures;
@@ -69,26 +70,6 @@ ism <- marko_vcov(X,fit.intercept=TRUE)
 walds <- ism$W / sqrt(diag(ism$What))
 print(t(walds))
 
-set.seed(1001)
-Feat <- matrix(rnorm(1000*2),ncol=2)
-Btrue <- 0.1 * matrix(rnorm(2*4),nrow=2)
-Xmean <- Feat %*% Btrue
-Strue <- cov(matrix(rnorm(100*4),ncol=4))
-Shalf <- chol(Strue)
-X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
-ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
-walds <- ism$W / sqrt(diag(ism$What))
-print(t(walds))
-# results are not much changed when using robust s.e.
-require(sandwich)
-
-ism <- marko_vcov(X,feat=Feat,vcov.func=sandwich::vcovHAC,fit.intercept=TRUE)
-walds <- ism$W / sqrt(diag(ism$What))
-print(t(walds))
-
-```
-
-```{r marko_plot,cache=FALSE,eval=TRUE,echo=TRUE}
 # generate data with given W, Sigma
 Xgen <- function(W,Sigma,Feat) {
  Btrue <- Sigma %*% W
@@ -98,18 +79,42 @@ Xgen <- function(W,Sigma,Feat) {
 }
 
 n.feat <- 3
-n.ret <- 10 
-n.obs <- 1000
+n.ret <- 5 
+n.obs <- 2000
 set.seed(101)
 Feat <- matrix(rnorm(n.obs * n.feat),ncol=n.feat)
-Wtrue <- 10 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
+Wtrue <- 5 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
 Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
 Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
 X <- Xgen(Wtrue,Sigma,Feat)
 ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
+
+walds <- ism$W / sqrt(diag(ism$What))
+print(t(walds))
+# results are not much changed when using robust s.e.
+require(sandwich)
+
+ism.rse <- marko_vcov(X,feat=Feat,vcov.func=sandwich::vcovHAC,fit.intercept=TRUE)
+walds.rse <- ism.rse$W / sqrt(diag(ism.rse$What))
+print(t(walds.rse))
+
+# errors should be asymptotically normal with the given covariance.
+n.feat <- 5
+n.ret <- 15 
+n.obs <- 3000
+set.seed(101)
+
+Feat <- matrix(rnorm(n.obs * n.feat),ncol=n.feat)
+Wtrue <- 5 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
+Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
+Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
+X <- Xgen(Wtrue,Sigma,Feat)
+ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
+
 Wcomp <- cbind(0,Wtrue)
 errs <- ism$W - Wcomp
 dim(errs) <- c(length(errs),1)
 Zerr <- solve(t(chol(ism$What)),errs)
+print(summary(Zerr))
 qqnorm(Zerr)
 ```

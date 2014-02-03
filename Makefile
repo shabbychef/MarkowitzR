@@ -245,6 +245,7 @@ cached_data : $(PREMAKE_RDA)
 
 README.md : $(NODIST_R_DIR)/README.md
 	mv $< $@
+	rsync -av --delete $(NODIST_R_DIR)/github_extra/ ./github_extra/
 
 # macro for local R
 R_LOCALLY  						= R_LIBS=$(LOCAL) $(R) $(R_FLAGS)
