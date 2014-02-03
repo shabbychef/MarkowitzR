@@ -98,7 +98,7 @@
 #' \item{ff}{The number of features plus \code{as.numeric(fit.intercept)}.}
 #' \item{p}{The number of assets.}
 #'
-#' @seealso \code{\link{itheta_vcov}}, \code{\link{theta_vcov}}
+#' @seealso \code{\link{theta_vcov}}, \code{\link{itheta_vcov}}
 #' @rdname marko_vcov
 #' @export 
 #' @template etc
@@ -164,7 +164,7 @@ marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 		XY <- cbind(as.matrix(feat),as.matrix(X))
 	}
 	XY <- na.omit(XY)
-	asymv <- itheta_vcov(XY,fit.intercept=fit.intercept,
+	asymv <- theta_vcov(XY,fit.intercept=fit.intercept,
 											 vcov.func=vcov.func)
 
 	# interpret

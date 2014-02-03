@@ -130,7 +130,7 @@ Pav, S. E. "Asymptotic Distribution of the Markowitz
 Portfolio." 2013 \url{http://arxiv.org/abs/1312.0557}
 }
 \seealso{
-\code{\link{itheta_vcov}}, \code{\link{theta_vcov}}
+\code{\link{theta_vcov}}, \code{\link{itheta_vcov}}
 }
 \keyword{univar}
 
