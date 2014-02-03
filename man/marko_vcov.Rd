@@ -46,11 +46,13 @@ a list containing the following components:
 a \eqn{q = (r)(r+1)/2} vector...} \item{Ohat}{The \eqn{q
 \times q}{q x q} estimated variance covariance matrix of
 \code{mu}.} \item{W}{The estimated Markowitz coefficient, a
-\eqn{(fit.intercept + f) \times p}{(fit.intercept + f) x p}
-matrix. The first row corresponds to the intercept term if
-it is fit.} \item{What}{The estimated variance covariance
-matrix of \code{vech(W)}. Letting \eqn{s = (fit.intercept +
-f)p}, this is a \eqn{s \times s}{s x s} matrix.}
+\eqn{p \times (fit.intercept + f)}{p x (fit.intercept + f)}
+matrix. The first column corresponds to the intercept term
+if it is fit. Note that for convenience this function
+performs the sign flip, which is not performed on
+\code{mu}.} \item{What}{The estimated variance covariance
+matrix of \code{vech(W)}. Letting \eqn{s = p(fit.intercept
++ f)}, this is a \eqn{s \times s}{s x s} matrix.}
 \item{widxs}{The indices into \code{mu} giving \code{W},
 and into \code{Ohat} giving \code{What}.} \item{n}{The
 number of rows in \code{X}.} \item{ff}{The number of
@@ -97,14 +99,28 @@ X <- matrix(rnorm(1000*3),ncol=3)
 ism <- marko_vcov(X,fit.intercept=TRUE)
 walds <- ism$W / sqrt(diag(ism$What))
 
-Feat <- matrix(rnorm(1000*2),ncol=2)
-Btrue <- 0.1 * matrix(rnorm(2*4),nrow=2)
-Xmean <- Feat \%*\% Btrue
-Strue <- cov(matrix(rnorm(100*4),ncol=4))
-Shalf <- chol(Strue)
-X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) \%*\% Shalf
+# generate data with given W, Sigma
+Xgen <- function(W,Sigma,Feat) {
+ Btrue <- Sigma \%*\% W
+ Xmean <- Feat \%*\% t(Btrue)
+ Shalf <- chol(Sigma)
+ X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) \%*\% Shalf
+}
+
+n.feat <- 2
+n.ret <- 8
+n.obs <- 10000
+set.seed(101)
+Feat <- matrix(rnorm(n.obs * n.feat),ncol=n.feat)
+Wtrue <- 10 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
+Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
+Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
+X <- Xgen(Wtrue,Sigma,Feat)
 ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
-walds <- ism$W / sqrt(diag(ism$What))
+Wcomp <- cbind(0,Wtrue)
+errs <- ism$W - Wcomp
+dim(errs) <- c(length(errs),1)
+Zerr <- solve(t(chol(ism$What)),errs)
 }
 \author{
 Steven E. Pav \email{shabbychef@gmail.com}

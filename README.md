@@ -42,7 +42,7 @@ set.seed(1001)
 X <- matrix(rnorm(1000 * 3), ncol = 3)
 ism <- marko_vcov(X, fit.intercept = TRUE)
 walds <- ism$W/sqrt(diag(ism$What))
-print(walds)
+print(t(walds))
 ```
 
 ```
@@ -62,7 +62,7 @@ X <- Xmean + matrix(rnorm(prod(dim(Xmean))), ncol = dim(Xmean)[2]) %*%
     Shalf
 ism <- marko_vcov(X, feat = Feat, fit.intercept = TRUE)
 walds <- ism$W/sqrt(diag(ism$What))
-print(walds)
+print(t(walds))
 ```
 
 ```
@@ -80,7 +80,7 @@ require(sandwich)
 ism <- marko_vcov(X, feat = Feat, vcov.func = sandwich::vcovHAC, 
     fit.intercept = TRUE)
 walds <- ism$W/sqrt(diag(ism$What))
-print(walds)
+print(t(walds))
 ```
 
 ```

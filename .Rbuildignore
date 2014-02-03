@@ -14,9 +14,6 @@ Makefile
 man-roxygen
 nodist
 rebuildTags.sh
-SharpeR_\d.\d+.tar.gz
-SharpeR.Rcheck
+MarkowitzR_\d.\d+.tar.gz$
+MarkowitzR.Rcheck
 unit_test.log
-asymarko_example.ipynb
-fooz.R
-inst/extdata/gmacro_data.rda

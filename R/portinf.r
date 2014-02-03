@@ -85,10 +85,12 @@
 #' \item{Ohat}{The \eqn{q \times q}{q x q} estimated variance covariance 
 #' matrix of \code{mu}.}
 #' \item{W}{The estimated Markowitz coefficient, a 
-#' \eqn{(fit.intercept + f) \times p}{(fit.intercept + f) x p} matrix. The
-#' first row corresponds to the intercept term if it is fit.}
+#' \eqn{p \times (fit.intercept + f)}{p x (fit.intercept + f)} matrix. The
+#' first column corresponds to the intercept term if it is fit. Note that
+#' for convenience this function performs the sign flip, which is not performed
+#' on \code{mu}.}
 #' \item{What}{The estimated variance covariance matrix of \code{vech(W)}.
-#' Letting \eqn{s = (fit.intercept + f)p}, this is a \eqn{s \times s}{s x s}
+#' Letting \eqn{s = p(fit.intercept + f)}, this is a \eqn{s \times s}{s x s}
 #' matrix.}
 #' \item{widxs}{The indices into \code{mu} giving \code{W}, and into
 #' \code{Ohat} giving \code{What}.}
@@ -107,16 +109,29 @@
 #' X <- matrix(rnorm(1000*3),ncol=3)
 #' ism <- marko_vcov(X,fit.intercept=TRUE)
 #' walds <- ism$W / sqrt(diag(ism$What))
-#'
-#' Feat <- matrix(rnorm(1000*2),ncol=2)
-#' Btrue <- 0.1 * matrix(rnorm(2*4),nrow=2)
-#' Xmean <- Feat %*% Btrue
-#' Strue <- cov(matrix(rnorm(100*4),ncol=4))
-#' Shalf <- chol(Strue)
-#' X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
+#' 
+#' # generate data with given W, Sigma
+#' Xgen <- function(W,Sigma,Feat) {
+#'  Btrue <- Sigma %*% W
+#'  Xmean <- Feat %*% t(Btrue)
+#'  Shalf <- chol(Sigma)
+#'  X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
+#' }
+#' 
+#' n.feat <- 2
+#' n.ret <- 8
+#' n.obs <- 10000
+#' set.seed(101)
+#' Feat <- matrix(rnorm(n.obs * n.feat),ncol=n.feat)
+#' Wtrue <- 10 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
+#' Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
+#' Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
+#' X <- Xgen(Wtrue,Sigma,Feat)
 #' ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
-#' walds <- ism$W / sqrt(diag(ism$What))
-#'
+#' Wcomp <- cbind(0,Wtrue)
+#' errs <- ism$W - Wcomp
+#' dim(errs) <- c(length(errs),1)
+#' Zerr <- solve(t(chol(ism$What)),errs)
 #'
 marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 											 weights=NULL,Jmat=NULL,Gmat=NULL) {
@@ -144,9 +159,9 @@ marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 
 	# compute second moment and variance/covariance;
 	if (is.null(feat)) {
-		XY <- -as.matrix(X)
+		XY <- as.matrix(X)
 	} else {
-		XY <- cbind(as.matrix(feat),-as.matrix(X))
+		XY <- cbind(as.matrix(feat),as.matrix(X))
 	}
 	XY <- na.omit(XY)
 	asymv <- itheta_vcov(XY,fit.intercept=fit.intercept,
@@ -179,16 +194,15 @@ marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
   # figure out indices of interest and then subselect!
 	botidx <- 0:(ff-1) * p + sapply(0:(ff-1),function(n)sum((ff-n):ff))
 	widxs <- outer(1:p,botidx,"+") 
-	dim(widxs) <- c(p,ff)
-	widxs <- t(widxs)
 	dim(widxs) <- c(length(widxs),1)
 
-	W <- mu[widxs]
-	dim(W) <- c(ff,p)
-	colnames(W) <- colnames(X)
-	rownames(W)[(1:f) + as.numeric(fit.intercept)] <- colnames(feat)
+	# sign flip to get Markowitz Coefficient ...
+	W <- - mu[widxs]
+	dim(W) <- c(p,ff)
+	rownames(W) <- colnames(X)
+	colnames(W)[(1:f) + as.numeric(fit.intercept)] <- colnames(feat)
 	if (fit.intercept)
-		rownames(W)[1] <- "Intercept"
+		colnames(W)[1] <- "Intercept"
 
 	What <- Ohat[widxs,widxs]
 	Wnames <- outer(rownames(W),colnames(W),FUN=function(x,y) { paste(x,"x",y) })
@@ -196,7 +210,7 @@ marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 	rownames(What) <- Wnames
 	colnames(What) <- Wnames
 
-	retval <- list(mu=diag(PTheta),
+	retval <- list(mu=mu,
 								 Ohat=Ohat,
 								 W=W,
 								 What=What,
