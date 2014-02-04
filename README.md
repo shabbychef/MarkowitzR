@@ -34,7 +34,9 @@ the asymptotic distribution of the Markowitz portfolio can
 be found. From this, Wald statistics on the individual portfolio
 weights can be computed. 
 
-Some example usage:
+### Fake Data
+
+First for unconditional returns:
 
 
 ```r
@@ -50,8 +52,11 @@ print(t(walds))
 ## Intercept 0.83 -0.15 -1.8
 ```
 
-```r
 
+Now for conditional expectation:
+
+
+```r
 # generate data with given W, Sigma
 Xgen <- function(W, Sigma, Feat) {
     Btrue <- Sigma %*% W
@@ -142,4 +147,52 @@ qqline(Zerr)
 ```
 
 ![plot of chunk marko_ism](github_extra/figure/marko_ism.png) 
+
+
+### Fama French data
+
+Now load the Fama French 3 factor portfolios, and analyze the Markowitz
+portfolio on them.
+
+
+```r
+ff.data <- read.csv(paste0("http://www.quandl.com/api/v1/datasets/", 
+    "KFRENCH/FACTORS_M.csv?&trim_start=1926-07-31&trim_end=2013-10-31", 
+    "&sort_order=asc"), colClasses = c(Month = "Date"))
+
+rownames(ff.data) <- ff.data$Month
+ff.data <- ff.data[, !(colnames(ff.data) %in% c("Month"))]
+# will not matter, but convert pcts:
+ff.data <- 0.01 * ff.data
+
+rfr <- ff.data[, "RF"]
+
+ff.ret <- cbind(ff.data[, "Mkt.RF"], ff.data[, c("HML", 
+    "SMB")] - rep(rfr, 2))
+colnames(ff.ret)[1] <- "MKT"
+
+ism <- marko_vcov(ff.ret, fit.intercept = TRUE)
+walds <- ism$W/sqrt(diag(ism$What))
+print(t(walds))
+```
+
+```
+##           MKT  HML  SMB
+## Intercept 3.9 0.26 -1.9
+```
+
+```r
+# now consider the hedging constraint: no
+# covariance with the market:
+Gmat <- matrix(c(1, 0, 0), nrow = 1)
+ism <- marko_vcov(ff.ret, fit.intercept = TRUE, Gmat = Gmat)
+walds <- ism$W/sqrt(diag(ism$What))
+print(t(walds))
+```
+
+```
+##            MKT  HML  SMB
+## Intercept 0.56 0.26 -1.9
+```
+
 

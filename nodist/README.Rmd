@@ -61,15 +61,21 @@ the asymptotic distribution of the Markowitz portfolio can
 be found. From this, Wald statistics on the individual portfolio
 weights can be computed. 
 
-Some example usage:
+### Fake Data
 
-```{r marko_ism,cache=FALSE,eval=TRUE,echo=TRUE}
+First for unconditional returns:
+
+```{r marko_basic,cache=FALSE,eval=TRUE,echo=TRUE}
 set.seed(1001)
 X <- matrix(rnorm(1000*3),ncol=3)
 ism <- marko_vcov(X,fit.intercept=TRUE)
 walds <- ism$W / sqrt(diag(ism$What))
 print(t(walds))
+```
 
+Now for conditional expectation:
+
+```{r marko_ism,cache=FALSE,eval=TRUE,echo=TRUE}
 # generate data with given W, Sigma
 Xgen <- function(W,Sigma,Feat) {
  Btrue <- Sigma %*% W
@@ -119,3 +125,36 @@ print(summary(Zerr))
 qqnorm(Zerr)
 qqline(Zerr)
 ```
+
+### Fama French data
+
+Now load the Fama French 3 factor portfolios, and analyze the Markowitz
+portfolio on them.
+
+```{r ff_load,cache=TRUE,eval=TRUE,echo=TRUE}
+ff.data <- read.csv(paste0('http://www.quandl.com/api/v1/datasets/',
+'KFRENCH/FACTORS_M.csv?&trim_start=1926-07-31&trim_end=2013-10-31',
+'&sort_order=asc'), colClasses=c('Month'='Date'))
+
+rownames(ff.data) <- ff.data$Month
+ff.data <- ff.data[,! (colnames(ff.data) %in% c("Month"))]
+# will not matter, but convert pcts:
+ff.data <- 1e-2 * ff.data
+
+rfr <- ff.data[,'RF']
+
+ff.ret <- cbind(ff.data[,'Mkt.RF'],
+	ff.data[,c('HML','SMB')] - rep(rfr,2))
+colnames(ff.ret)[1] <- "MKT"
+
+ism <- marko_vcov(ff.ret,fit.intercept=TRUE)
+walds <- ism$W / sqrt(diag(ism$What))
+print(t(walds))
+# now consider the hedging constraint: no covariance
+# with the market:
+Gmat <- matrix(c(1,0,0),nrow=1)
+ism <- marko_vcov(ff.ret,fit.intercept=TRUE,Gmat=Gmat)
+walds <- ism$W / sqrt(diag(ism$What))
+print(t(walds))
+```
+

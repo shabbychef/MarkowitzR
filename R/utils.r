@@ -72,7 +72,7 @@ ivech <- function(x) {
 		iT <- solve(Theta)
 		iiT <- .xkronx(iT)
 	} else {
-		halfproj <- solve(.qoform(Sigma,M))
+		halfproj <- solve(.qoform(Theta,M))
 		iT <- .qform(halfproj,M)
 		iiT <- .xkronx(t(M)) %*% (.xkronx(solve(halfproj)) %*% .xkronx(M))
 	}

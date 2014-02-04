@@ -98,6 +98,18 @@ set.seed(1001)
 X <- matrix(rnorm(1000*3),ncol=3)
 ism <- marko_vcov(X,fit.intercept=TRUE)
 walds <- ism$W / sqrt(diag(ism$What))
+print(t(walds))
+# subspace constraint
+Jmat <- matrix(rnorm(6),ncol=3)
+ism <- marko_vcov(X,fit.intercept=TRUE,Jmat=Jmat)
+walds <- ism$W / sqrt(diag(ism$What))
+print(t(walds))
+# hedging constraint
+Gmat <- matrix(1,nrow=1,ncol=3)
+ism <- marko_vcov(X,fit.intercept=TRUE,Gmat=Gmat)
+walds <- ism$W / sqrt(diag(ism$What))
+
+# now conditional expectation:
 
 # generate data with given W, Sigma
 Xgen <- function(W,Sigma,Feat) {

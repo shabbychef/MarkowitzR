@@ -105,11 +105,24 @@
 #' @template ref-SEP13
 #'
 #' @examples 
+# unconditional returns
 #' set.seed(1001)
 #' X <- matrix(rnorm(1000*3),ncol=3)
 #' ism <- marko_vcov(X,fit.intercept=TRUE)
 #' walds <- ism$W / sqrt(diag(ism$What))
+#' print(t(walds))
+#' # subspace constraint
+#' Jmat <- matrix(rnorm(6),ncol=3)
+#' ism <- marko_vcov(X,fit.intercept=TRUE,Jmat=Jmat)
+#' walds <- ism$W / sqrt(diag(ism$What))
+#' print(t(walds))
+#' # hedging constraint
+#' Gmat <- matrix(1,nrow=1,ncol=3)
+#' ism <- marko_vcov(X,fit.intercept=TRUE,Gmat=Gmat)
+#' walds <- ism$W / sqrt(diag(ism$What))
 #' 
+#' # now conditional expectation:
+#'
 #' # generate data with given W, Sigma
 #' Xgen <- function(W,Sigma,Feat) {
 #'  Btrue <- Sigma %*% W
@@ -150,7 +163,10 @@ marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 	p <- dim(X)[2]
 	ff <- f + as.numeric(fit.intercept)
 
-	twidlize <- function(M) { rbind(cbind(diag(ff),0),cbind(0,M)) }
+	twidlize <- function(M) { 
+		rbind(cbind(diag(ff),matrix(0,nrow=1,ncol=dim(M)[2])),
+					cbind(0,M)) 
+	}
 
 	if (!is.null(Jmat)) 
 		Jtwid <- twidlize(Jmat) 
