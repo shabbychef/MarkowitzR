@@ -143,7 +143,7 @@ print(summary(Zerr))
 
 ```r
 qqnorm(Zerr)
-qqline(Zerr)
+qqline(Zerr, col = 2)
 ```
 
 ![plot of chunk marko_ism](github_extra/figure/marko_ism.png) 
