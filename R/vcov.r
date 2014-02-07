@@ -113,6 +113,7 @@ theta_vcov <- function(X,vcov.func=vcov,fit.intercept=TRUE) {
 
 	# model Y and estimate Sigma hat#FOLDUP
 	if (is.character(vcov.func)) {
+		n <- dim(X)[1]
 		if (vcov.func != "normal") 
 			stop("only understand function or 'normal'")
 		if (!fit.intercept) 

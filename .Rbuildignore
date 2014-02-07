@@ -18,3 +18,4 @@ MarkowitzR_\d.\d+.tar.gz$
 MarkowitzR.Rcheck
 ^github_extra
 unit_test.log
+LICENSE

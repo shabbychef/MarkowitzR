@@ -97,8 +97,8 @@ LONG.FORM <- FALSE
 mc.resolution <- ifelse(LONG.FORM,1000,200)
 mc.resolution <- max(mc.resolution,100)
 
-library(quantmod)
-options("getSymbols.warning4.0"=FALSE)
+# library(quantmod)
+# options("getSymbols.warning4.0"=FALSE)
 
 library(MarkowitzR)
 
@@ -645,7 +645,7 @@ column of \pvvar is all zeros, and we need not estimate it.
 Assuming $\pvmu \ne \vzero$, and \pvsig is invertible,
 the portfolio optimization problem
 \begin{equation}
-\argmax_{\pportw :\, \qform{\pvsig}{\pportw} \le \Rbuj^2} 
+{argmax}_{\pportw :\, \qform{\pvsig}{\pportw} \le \Rbuj^2} 
 \frac{\trAB{\pportw}{\pvmu} - \rfr}{\sqrt{\qform{\pvsig}{\pportw}}},
 \label{eqn:sr_optimal_portfolio_problem}
 \end{equation}
@@ -1807,7 +1807,7 @@ in the following lemma, the proof of which follows by simply using
 Under either the model in \eqnref{cond_model_I} or \eqnref{cond_model_II}, 
 conditional on observing \fvola[i], the portfolio optimization problem
 \begin{equation}
-\argmax_{\pportw :\, \Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i]} \le \Rbuj^2} 
+{argmax}_{\pportw :\, \Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i]} \le \Rbuj^2} 
 \frac{\Econd{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i]} -
 \rfr}{\sqrt{\Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i]}}},
 \label{eqn:cond_sr_optimal_portfolio_problem_I}
@@ -1941,7 +1941,7 @@ Under the model in \eqnref{cond_model_IV},
 conditional on observing \fvola[i] and \vfact[i], 
 the portfolio optimization problem
 \begin{equation}
-\argmax_{\pportw :\, \Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} \le \Rbuj^2} 
+{argmax}_{\pportw :\, \Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} \le \Rbuj^2} 
 \frac{\Econd{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} -
 \rfr}{\sqrt{\Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]}}},
 \label{eqn:cond_sr_optimal_portfolio_problem_I}
@@ -2061,7 +2061,7 @@ rank \nlatfhej. Under the model in \eqnref{cond_model_IV},
 conditional on observing \fvola[i] and \vfact[i], 
 the portfolio optimization problem
 \begin{equation}
-\argmax_{\substack{\pportw :\,\hejG\pvsig \pportw = \vzero,\\
+{argmax}_{\substack{\pportw :\,\hejG\pvsig \pportw = \vzero,\\
  \Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} \le \Rbuj^2}}
 \frac{\Econd{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} -
 \rfr}{\sqrt{\Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]}}},
