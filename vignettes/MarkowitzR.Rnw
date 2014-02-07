@@ -49,8 +49,8 @@
 %\providecommand{\sideWarning}[1][0.5]{\marginpar{\hfill\includegraphics[width=#1\marginparwidth]{warning}}}
 % see: https://stat.ethz.ch/pipermail/r-help/2007-November/144810.html
 \newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
-%\let\proglang=\textsf
-%\let\code=\texttt
+\let\proglang=\textsf
+\let\code=\texttt
 \newcommand{\CRANpkg}[1]{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\MarkowitzR}{\CRANpkg{MarkowitzR}\xspace}
 
@@ -324,72 +324,67 @@ lseq <- function(from,to,length.out) {
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}%FOLDUP
-The \txtMP appears in the inverse of a certain matrix
-containing first and second moments of asset returns. Using this
-`weird trick', the asymptotic distribution of the 
-\txtMP can be found via the central limit theorem and delta method.
-This allows one to construct Wald statistics on the elements of the
+The asymptotic distribution of the \txtMP can be found via the central limit theorem 
+and delta method.  This allows one to construct Wald statistics on the elements of the
 Markowitz portfolio or perform shrinkage on those elements.
-This derivation is more general than that of 
-Britten-Jones \cite{BrittenJones1999}, as it allows the use of 
-robust standard errors; can be extended to deal with hedged portfolios,
-conditional hetereskedasticity and expectation; allows estimation
-of the proportion of error due to mis-estimation of the covariance matrix.
-Use of this computatio via the \MarkowitzR package is illustrated.
+This technique allows the use of robust standard errors; 
+can be extended to deal with hedged portfolios, conditional hetereskedasticity and expectation;
+allows estimation of the proportion of error due to mis-estimation of the covariance matrix.
+Example computations via the \MarkowitzR package are illustrated.
 \end{abstract}%UNFOLD
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}%FOLDUP
 
 Given \nlatf assets with expected return \pvmu and covariance of return \pvsig,
-the `\txtMP', defined as 
+define the `\txtMP' as 
 \begin{equation}
-\pportwopt \defeq \lambda \minvAB{\pvsig}{\pvmu}
+\pportwopt \defeq \minvAB{\pvsig}{\pvmu}.
 \end{equation}
-plays a special role in modern portfolio 
-theory. \cite{markowitz1952portfolio,brandt2009portfolio,GVK322224764}
+\nocite{markowitz1952portfolio,brandt2009portfolio,GVK322224764}
 %It is known as the `efficient portfolio', the `tangency portfolio', 
 %and, somewhat informally, the `\txtMP'. 
-It appears, for various $\lambda$, in the solution to numerous
-portfolio optimization problems.  
-Besides the classic mean-variance formulation,
-it solves the (population) \txtSR maximization problem:
-\begin{equation}
-\max_{\pportw : \qform{\pvsig}{\pportw} \le \Rbuj^2} 
-\frac{\trAB{\pportw}{\pvmu} - \rfr}{\sqrt{\qform{\pvsig}{\pportw}}},
-\label{eqn:opt_port_I}
-\end{equation}
-where $\rfr\ge 0$ is the risk-free, or `disastrous', rate of return, and 
-$\Rbuj > 0$ is some given `risk budget'. 
-The solution to this optimization problem is $\lambda \minvAB{\pvsig}{\pvmu}$,
-where $\lambda = \fracc{\Rbuj}{\sqrt{\qiform{\pvsig}{\pvmu}}}.$
-\nocite{markowitz1952portfolio}  % does not actually mention this portfolio?
+%It appears, for various $\lambda$, in the solution to numerous
+%portfolio optimization problems.  
+%Besides the classic mean-variance formulation,
+%it solves the (population) \txtSR maximization problem:
+%\begin{equation}
+%\max_{\pportw : \qform{\pvsig}{\pportw} \le \Rbuj^2} 
+%\frac{\trAB{\pportw}{\pvmu} - \rfr}{\sqrt{\qform{\pvsig}{\pportw}}},
+%\label{eqn:opt_port_I}
+%\end{equation}
+%where $\rfr\ge 0$ is the risk-free, or `disastrous', rate of return, and 
+%$\Rbuj > 0$ is some given `risk budget'. 
+%The solution to this optimization problem is $\lambda \minvAB{\pvsig}{\pvmu}$,
+%where $\lambda = \fracc{\Rbuj}{\sqrt{\qiform{\pvsig}{\pvmu}}}.$
+%\nocite{markowitz1952portfolio}  % does not actually mention this portfolio?
 
-In practice, the \txtMP has a somewhat checkered history. 
-The population parameters \pvmu and \pvsig are not known and must
-be estimated from samples. Estimation error results in a feasible
-portfolio, \sportwopt, of dubious value. Michaud went so far as to call
-mean-variance optimization, 
-``error maximization.'' \cite{michaud1989markowitz}  
-It has been suggested that simple portfolio heuristics outperform the
-\txtMP in practice.  \cite{demiguel2009optimal}  
+In practice, the population parameters \pvmu and \pvsig are not 
+known and must be estimated from samples. Use of the central limit theorem and
+the delta method gives asymptotic normality of the vector \pportwopt, with a
+covariance that may be estimated from the data. For essentially no extra
+computational work, one also gets an estimate of the 
+covariance of \pportwopt with $\minv{\pvsig}$.
 %UNFOLD
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Examples}%FOLDUP
+\section{Example Usage}%FOLDUP
 
-\subsection{Code and Basic Usage}%FOLDUP
-Here I present example usage of the above results in R. In each
-scenario, the results of primary interest are the marginal Wald
+\subsection{Fake data}%FOLDUP
+
+The variance-covariance matrix of `inverse theta' is computed by
+{\code itheta\_vcov}; a fancier version is given by 
+{\code marko\_vcov}. The primary use case of the variance-covariance
+matrix is to compute the marginal Wald
 test statistics under the null of zero weight in the \txtMP. 
-The basic procedure is listed here:
+The basic procedure is illustrated here:
 
 %Empirically, the marginal Wald test for zero weighting in the 
 %\txtMP based on this approximation are nearly
 %identical to the \tstat-statistics produced by the procedure
 %of Britten-Jones, as shown below. \cite{BrittenJones1999} 
 
-<<'the_proc',echo=TRUE>>=
+<<'the_proc',echo=TRUE,cache=FALSE>>=
 require(gtools)
 # set the colnames of X appropriately
 set.coln <- defmacro(X,expr={
@@ -424,31 +419,64 @@ do.both <- function(rets,...) {
 	rownames(retval) <- c("Britten Jones t-stat","weird trick Wald stat")
 	return(retval)
 }
+n.day <- 1000
+n.stock <- 5
 @
 
 First some example usage under randomly generated data to 
 compare against the \tstat-statistics produced by the Britten-Jones 
-procedure. \cite{BrittenJones1999} The tests are performed on 256
-observations of 7 assets, first under the null of zero mean returns,
+procedure. \cite{BrittenJones1999} The tests are performed on \Sexpr{n.day}
+observations of \Sexpr{n.stock} assets, first under the null of zero mean returns,
 then under the alternative. The results of these two tests
 are very close, as is typically the case under Gaussian returns when
 the ratio of days to assets is large. This is a way of ``sanity checking''
-the Wald test implementation. 
+the implementation of {\code itheta\_vcov} and the Wald test.
 
 <<'me_vs_bjones',echo=TRUE>>=
-nday <- 256
-nstk <- 7
-
 # under the null: all returns are zero mean;
-set.seed(as.integer(charToRaw("04fa9bec-f342-47c0-85a6-692324a25f3f")))
-rets <- matrix(rnorm(nday * nstk),nrow=nday)
-
+set.seed(as.integer(charToRaw("7af85b0b-e521-4059-bebe-55ad9a9a0456")))
+rets <- matrix(rnorm(n.day * n.stock),nrow=n.day)
 # compare them:
+print(do.both(rets))
+
+# returns under the alternative
+set.seed(as.integer(charToRaw("464dcbea-375b-49d0-8f38-b48b5a33c7ea")))
+rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
 print(do.both(rets))
 @
 
+Now consider the \emph{constrained} portfolio which has no covariance with the 
+portfolio equal dollar long in each of the fake assets. The Wald statistics are
+computed as follows
+
+<<'cons_one',echo=TRUE,cache=FALSE>>=
+marko.ws <- function(rets,...) {
+	set.coln(rets)
+	# 'flipping the sign on returns is idiomatic'
+	asymv <- marko_vcov(as.matrix(rets),...)
+	wald.s <- asymv$W / sqrt(diag(asymv$What))
+	return(t(wald.s))
+}
+# first for the case where the real Markowitz Portfolio is actually
+# equal dollar long in each stock.
+set.seed(as.integer(charToRaw("0bda3ab6-53a7-4f5a-aa6a-0fe21edbaa20")))
+rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
+Gmat <- matrix(1,nrow=1,ncol=n.stock)
+print(marko.ws(rets,Gmat=Gmat))
+# and in the case where it is not.
+set.seed(as.integer(charToRaw("420f1dfd-b19b-4175-83b3-b96548264bf8")))
+rets <- matrix(rnorm(n.day * n.stock,mean=0),nrow=n.day)
+mu.off <-
+t(matrix(seq(from=-0.8,to=0.8,length.out=n.stock),nrow=n.stock,ncol=n.day))
+rets <- rets + mu.off
+Gmat <- matrix(1,nrow=1,ncol=n.stock)
+print(marko.ws(rets,Gmat=Gmat))
+@
+
+
+
 Example code showing normality:
-<<'normality',echo=TRUE>>=
+<<'normality',echo=TRUE,cache=FALSE>>=
 # generate data with given W, Sigma
 Xgen <- function(W,Sigma,Feat) {
  Btrue <- Sigma %*% W
@@ -472,20 +500,21 @@ errs <- ism$W - Wcomp
 dim(errs) <- c(length(errs),1)
 Zerr <- solve(t(chol(ism$What)),errs)
 qqnorm(Zerr)
+qqline(Zerr,col=2)
 @
 
 
 %# repeat under the alternative;
 %set.seed(as.integer(charToRaw("1289daaa-6060-4901-bc90-c5245bcf73f1")))
-%zero.rets <- t(matrix(rnorm(nday * nstk),nrow=nday))
-%mu.vals <- (1/sqrt(253)) * seq(-1,1,length.out=nstk) 
+%zero.rets <- t(matrix(rnorm(n.day * n.stock),nrow=n.day))
+%mu.vals <- (1/sqrt(253)) * seq(-1,1,length.out=n.stock) 
 %rets <- t(zero.rets + mu.vals)
 
 %# compare them:
 %print(do.both(rets))
 %UNFOLD
 
-\subsection{Fama French Three Portfolios}
+\subsection{Fama French Three Portfolios}%FOLDUP
 
 I download the monthly Fama French 3-factor portfolio returns
 from \CRANpkg{Quandl} \cite{Quandl},
@@ -715,8 +744,7 @@ technique to returns divided by this estimated volatility.
 %%
 %%print(wtrick.co.ws(wt.ff.ret,featrtime,fit.intercept=TRUE,vcov.func=sandwich::vcovHAC))
 
-
-% 2FIX: add examples here ... 
+%UNFOLD
 %UNFOLD
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

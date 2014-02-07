@@ -123,7 +123,7 @@ dim(errs) <- c(length(errs),1)
 Zerr <- solve(t(chol(ism$What)),errs)
 print(summary(Zerr))
 qqnorm(Zerr)
-qqline(Zerr)
+qqline(Zerr,col=2)
 ```
 
 ### Fama French data
