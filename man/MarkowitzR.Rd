@@ -13,7 +13,7 @@ Inference on the Markowitz portfolio.
   the portfolio \eqn{w = \Sigma^{-1}\mu}{w = Sigma^-1 mu}.
   Scale multiples of this portfolio solve various portfolio
   optimization problems, among them
-  \deqn{\operatorname{argmax}_{w: w^{\top}\Sigma w \le R^2}
+  \deqn{\mathrm{argmax}_{w: w^{\top}\Sigma w \le R^2}
   \frac{\mu^{\top} w - r_0}{\sqrt{w^{\top}\Sigma
   w}}}{argmax{ (mu'w - r0) / sqrt(w'Sigma w) : w'Sigma w <=
   R^2}}
