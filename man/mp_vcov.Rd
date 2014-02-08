@@ -1,8 +1,8 @@
-\name{marko_vcov}
-\alias{marko_vcov}
+\name{mp_vcov}
+\alias{mp_vcov}
 \title{Estimate Markowitz Portfolio}
 \usage{
-marko_vcov(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,weights=NULL,Jmat=NULL,Gmat=NULL)
+mp_vcov(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,weights=NULL,Jmat=NULL,Gmat=NULL)
 }
 \arguments{
   \item{X}{an \eqn{n \times p}{n x p} matrix of observed
@@ -96,17 +96,17 @@ estimator, like \code{sandwich:vcovHAC},
 \examples{
 set.seed(1001)
 X <- matrix(rnorm(1000*3),ncol=3)
-ism <- marko_vcov(X,fit.intercept=TRUE)
+ism <- mp_vcov(X,fit.intercept=TRUE)
 walds <- ism$W / sqrt(diag(ism$What))
 print(t(walds))
 # subspace constraint
 Jmat <- matrix(rnorm(6),ncol=3)
-ism <- marko_vcov(X,fit.intercept=TRUE,Jmat=Jmat)
+ism <- mp_vcov(X,fit.intercept=TRUE,Jmat=Jmat)
 walds <- ism$W / sqrt(diag(ism$What))
 print(t(walds))
 # hedging constraint
 Gmat <- matrix(1,nrow=1,ncol=3)
-ism <- marko_vcov(X,fit.intercept=TRUE,Gmat=Gmat)
+ism <- mp_vcov(X,fit.intercept=TRUE,Gmat=Gmat)
 walds <- ism$W / sqrt(diag(ism$What))
 
 # now conditional expectation:
@@ -128,7 +128,7 @@ Wtrue <- 10 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
 Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
 Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
 X <- Xgen(Wtrue,Sigma,Feat)
-ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
+ism <- mp_vcov(X,feat=Feat,fit.intercept=TRUE)
 Wcomp <- cbind(0,Wtrue)
 errs <- ism$W - Wcomp
 dim(errs) <- c(length(errs),1)
