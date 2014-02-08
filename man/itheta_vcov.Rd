@@ -59,7 +59,7 @@ this transform before passing the data to this function
 should be considered idiomatic.
 
 A more general form of this function exists as
-\code{\link{marko_vcov}}.
+\code{\link{mp_vcov}}.
 
 Replaces similar functionality from SharpeR package, but
 with modified API.
@@ -108,7 +108,7 @@ Pav, S. E. "Asymptotic Distribution of the Markowitz
 Portfolio." 2013 \url{http://arxiv.org/abs/1312.0557}
 }
 \seealso{
-\code{\link{theta_vcov}}, \code{\link{marko_vcov}}.
+\code{\link{theta_vcov}}, \code{\link{mp_vcov}}.
 }
 \keyword{univar}
 

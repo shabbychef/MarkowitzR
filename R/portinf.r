@@ -58,7 +58,7 @@
 #'
 #' @usage
 #'
-#' marko_vcov(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,weights=NULL,Jmat=NULL,Gmat=NULL)
+#' mp_vcov(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,weights=NULL,Jmat=NULL,Gmat=NULL)
 #'
 #' @param X an \eqn{n \times p}{n x p} matrix of observed returns.
 #' @param feat an \eqn{n \times f}{n x f} matrix of observed features.
@@ -99,7 +99,7 @@
 #' \item{p}{The number of assets.}
 #'
 #' @seealso \code{\link{theta_vcov}}, \code{\link{itheta_vcov}}
-#' @rdname marko_vcov
+#' @rdname mp_vcov
 #' @export 
 #' @template etc
 #' @template ref-SEP13
@@ -108,17 +108,17 @@
 # unconditional returns
 #' set.seed(1001)
 #' X <- matrix(rnorm(1000*3),ncol=3)
-#' ism <- marko_vcov(X,fit.intercept=TRUE)
+#' ism <- mp_vcov(X,fit.intercept=TRUE)
 #' walds <- ism$W / sqrt(diag(ism$What))
 #' print(t(walds))
 #' # subspace constraint
 #' Jmat <- matrix(rnorm(6),ncol=3)
-#' ism <- marko_vcov(X,fit.intercept=TRUE,Jmat=Jmat)
+#' ism <- mp_vcov(X,fit.intercept=TRUE,Jmat=Jmat)
 #' walds <- ism$W / sqrt(diag(ism$What))
 #' print(t(walds))
 #' # hedging constraint
 #' Gmat <- matrix(1,nrow=1,ncol=3)
-#' ism <- marko_vcov(X,fit.intercept=TRUE,Gmat=Gmat)
+#' ism <- mp_vcov(X,fit.intercept=TRUE,Gmat=Gmat)
 #' walds <- ism$W / sqrt(diag(ism$What))
 #' 
 #' # now conditional expectation:
@@ -140,13 +140,13 @@
 #' Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
 #' Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
 #' X <- Xgen(Wtrue,Sigma,Feat)
-#' ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
+#' ism <- mp_vcov(X,feat=Feat,fit.intercept=TRUE)
 #' Wcomp <- cbind(0,Wtrue)
 #' errs <- ism$W - Wcomp
 #' dim(errs) <- c(length(errs),1)
 #' Zerr <- solve(t(chol(ism$What)),errs)
 #'
-marko_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
+mp_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 											 weights=NULL,Jmat=NULL,Gmat=NULL) {
 	set.coln(X)
 

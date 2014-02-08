@@ -1352,7 +1352,17 @@ for \pportx, but then find the asymptotic distribution of the resultant
 \pportx are, respectively, \trAB{\pportx}{\zerJ\pvmu} and 
 \qform{\qoform{\pvsig}{\zerJ}}{\pportx}. Thus we can plug in
 $\zerJ\pvmu$ and \qoform{\pvsig}{\zerJ} into 
-\lemmaref{sr_optimal_portfolio} to get the following analogue.
+\lemmaref{sr_optimal_portfolio} to get the following analogue; to simplify
+notation, we will need the following projection operator.
+
+\begin{definition}[Risk Projection]
+\label{definition:risk_projection}
+Define the covariance-projection operator as
+\begin{equation}
+\proj{\pvsig}{\Mtx{A}} \defeq \wrapProj{\pvsig}{\Mtx{A}},
+\end{equation}
+for conformable matrix \Mtx{A}.
+\end{definition}
 
 \begin{lemma}[subspace constrained \txtSR optimal portfolio]%FOLDUP
 \label{lemma:subsp_cons_sr_optimal_portfolio}
@@ -1369,8 +1379,8 @@ for $\rfr \ge 0, \Rbuj > 0$ is solved by
 \begin{equation*}
 \begin{split}
 \pportwoptFoo{\Rbuj,\zerJ,} 
- &\defeq c \wrapProj{\pvsig}{\zerJ}\pvmu,\\
- c &= \frac{\Rbuj}{\sqrt{\qform{\wrapProj{\pvsig}{\zerJ}}{\pvmu}}}.
+ &\defeq c \proj{\pvsig}{\zerJ}\pvmu,\\
+ c &= \frac{\Rbuj}{\sqrt{\qform{\proj{\pvsig}{\zerJ}}{\pvmu}}}.
 \end{split}
 \end{equation*}
 When $\rfr > 0$ the solution is unique.
@@ -1410,25 +1420,25 @@ $$
 Simple algebra proves the following lemma.
 
 \begin{lemma}%FOLDUP
-The elements of $\wrapProj{\pvsm}{\zerJt}$
+The elements of $\proj{\pvsm}{\zerJt}$
 are 
 \begin{equation*}
-\wrapProj{\pvsm}{\zerJt}
+\proj{\pvsm}{\zerJt}
 =
-\twobytwo{ 1 + \qform{\wrapProj{\pvsig}{\zerJ}}{\pvmu} }{
--\tr{\pvmu}\wrapProj{\pvsig}{\zerJ}}{
--\wrapProj{\pvsig}{\zerJ}\pvmu}{
-\wrapProj{\pvsig}{\zerJ}}.
+\twobytwo{ 1 + \qform{\proj{\pvsig}{\zerJ}}{\pvmu} }{
+-\tr{\pvmu}\proj{\pvsig}{\zerJ}}{
+-\proj{\pvsig}{\zerJ}\pvmu}{
+\proj{\pvsig}{\zerJ}}.
 \end{equation*}
 In particular, elements $2$ through $\nlatf+1$ of 
-$-\fvech{\wrapProj{\pvsm}{\zerJt}}$ are the portfolio
+$-\fvech{\proj{\pvsm}{\zerJt}}$ are the portfolio
 $\sportwoptFoo{\Rbuj,\zerJ,}$
 defined in \lemmaref{subsp_cons_sr_optimal_portfolio}, up to the scaling
 constant $c$ which is the ratio of \Rbuj to the square root of the first
-element of $\fvech{\wrapProj{\pvsm}{\zerJt}}$ minus one.
+element of $\fvech{\proj{\pvsm}{\zerJt}}$ minus one.
 \end{lemma}%UNFOLD
 
-The asymptotic distribution of $\fvech{\wrapProj{\pvsm}{\zerJt}}$
+The asymptotic distribution of $\fvech{\proj{\pvsm}{\zerJt}}$
 is given by the following theorem, which is the analogue 
 of \theoremref{inv_distribution}.
 
@@ -1441,8 +1451,8 @@ be defined as in \definitionref{subspace_second_moment}.
 Let \pvvar be the variance of $\fvech{\ogram{\avreti}}$.  
 Then, asymptotically in \ssiz, 
 \begin{equation}
-\sqrt{\ssiz}\wrapParens{\fvech{\wrapProj{\svsm}{\zerJt}} -
-\fvech{\wrapProj{\pvsm}{\zerJt}}}
+\sqrt{\ssiz}\wrapParens{\fvech{\proj{\svsm}{\zerJt}} -
+\fvech{\proj{\pvsm}{\zerJt}}}
 \rightsquigarrow 
 \normlaw{0,\qoform{\pvvar}{\Mtx{H}}},
 \label{eqn:mvclt_zer_isvsm}
@@ -1457,11 +1467,11 @@ where
 \begin{proof}%FOLDUP
 By the multivariate delta method, it suffices to prove that
 $$
-\Mtx{H} = \dbyd{\fvech{\wrapProj{\svsm}{\zerJt}}}{\fvech{\pvsm}}.
+\Mtx{H} = \dbyd{\fvech{\proj{\svsm}{\zerJt}}}{\fvech{\pvsm}}.
 $$
 Via \lemmaref{misc_derivs}, it suffices to prove that
 $$
-\dbyd{\wrapProj{\pvsm}{\zerJt}}{\pvsm}
+\dbyd{\proj{\pvsm}{\zerJt}}{\pvsm}
 = 
 - \wrapParens{\AkronA{\tr{\zerJt}}} \wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}}}
 \wrapParens{\AkronA{\zerJt}}.
@@ -1476,9 +1486,9 @@ $$
 Using this, and the chain rule, we have:
 \begin{equation*}
 \begin{split}
-\dbyd{\wrapProj{\pvsm}{\zerJt}}{\pvsm}
+\dbyd{\proj{\pvsm}{\zerJt}}{\pvsm}
 &=
-\dbyd{\wrapProj{\pvsm}{\zerJt}}{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}} 
+\dbyd{\proj{\pvsm}{\zerJt}}{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}} 
 \dbyd{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}}{\qoform{\pvsm}{\zerJt}}
 \dbyd{\qoform{\pvsm}{\zerJt}}{\pvsm}\\
 &= 
@@ -1535,9 +1545,9 @@ for $\rfr \ge 0, \Rbuj > 0$ is solved by
 \begin{equation*}
 \begin{split}
 \pportwoptFoo{\Rbuj,\hejG,} &\defeq c \wrapParens{\minv{\pvsig}{\pvmu} -
-	\wrapProj{\pvsig}{\hejG}\pvmu},\\
+	\proj{\pvsig}{\hejG}\pvmu},\\
  c &= \frac{\Rbuj}{\sqrt{\qiform{\pvsig}{\pvmu} - 
-	\qform{\wrapProj{\pvsig}{\hejG}}{\pvmu}}}.
+	\qform{\proj{\pvsig}{\hejG}}{\pvmu}}}.
 \end{split}
 \end{equation*}
 When $\rfr > 0$ the solution is unique.
@@ -1573,7 +1583,7 @@ $\vect{\gamma_2} = \minvAB{\wrapParens{\qoform{\pvsig}{\hejG}}}{\hejG}\pvmu.$
 Thus
 $$
 \pportw = c_3\wrapBracks{\minvAB{\pvsig}{\pvmu} -
-\wrapProj{\pvsig}{\hejG}\pvmu}.
+\proj{\pvsig}{\hejG}\pvmu}.
 $$
 Plugging this into the objective reduces the problem to the
 univariate optimization
@@ -1582,7 +1592,7 @@ univariate optimization
 \sign{c_3} \psnroptG{\hejG} - \frac{\rfr}{\abs{c_3}\psnroptG{\hejG}},
 \end{equation*}
 where $\psnrsqoptG{\hejG} = \qiform{\pvsig}{\pvmu} - 
-  \qform{\wrapProj{\pvsig}{\hejG}}{\pvmu}.$
+  \qform{\proj{\pvsig}{\hejG}}{\pvmu}.$
 The optimum
 occurs for $c = \fracc{\Rbuj}{\psnroptG{\hejG}}$, moreover the optimum
 is unique when $\rfr > 0$.
@@ -1605,7 +1615,7 @@ $$
 Define the `delta inverse second moment' as
 $$
 \Delhej\minv{\pvsm} \defeq \minv{\pvsm} -
-\wrapProj{\pvsm}{\hejGt}.$$
+\proj{\pvsm}{\hejGt}.$$
 \end{definition}%UNFOLD
 
 Simple algebra proves the following lemma.
@@ -1615,14 +1625,14 @@ The elements of $\Delhej\minv{\pvsm}$
 are 
 \begin{equation*}
 \Delhej\minv{\pvsm} =
-\twobytwo{ \qiform{\pvsig}{\pvmu} - \qform{\wrapProj{\pvsig}{\hejG}}{\pvmu} }{
--\tr{\pvmu}\minv{\pvsig} + \tr{\pvmu}\wrapProj{\pvsig}{\hejG}}{
--\minv{\pvsig}\pvmu + \wrapProj{\pvsig}{\hejG}\pvmu}{
-\minv{\pvsig} - \wrapProj{\pvsig}{\hejG}}.
+\twobytwo{ \qiform{\pvsig}{\pvmu} - \qform{\proj{\pvsig}{\hejG}}{\pvmu} }{
+-\tr{\pvmu}\minv{\pvsig} + \tr{\pvmu}\proj{\pvsig}{\hejG}}{
+-\minv{\pvsig}\pvmu + \proj{\pvsig}{\hejG}\pvmu}{
+\minv{\pvsig} - \proj{\pvsig}{\hejG}}.
 \end{equation*}
-%\twobytwosym{ \qiform{\pvsig}{\pvmu} - \wrapProj{\pvsig}{\hejG} }{
-%-\wrapBracks{\tr{\pvmu}\minv{\pvsig} - \tr{\pvmu}\wrapProj{\pvsig}{\hejG}}}{
-%\minv{\pvsig} - \wrapProj{\pvsig}{\hejG}}.
+%\twobytwosym{ \qiform{\pvsig}{\pvmu} - \proj{\pvsig}{\hejG} }{
+%-\wrapBracks{\tr{\pvmu}\minv{\pvsig} - \tr{\pvmu}\proj{\pvsig}{\hejG}}}{
+%\minv{\pvsig} - \proj{\pvsig}{\hejG}}.
 In particular, elements $2$ through $\nlatf+1$ of 
 $-\fvech{\Delhej\minv{\pvsm}}$ are the portfolio $\pportwoptFoo{\Rbuj,\hejG,}$
 defined in \lemmaref{cons_sr_optimal_portfolio}, up to the scaling
@@ -1631,7 +1641,7 @@ element of \fvech{\Delhej\minv{\pvsm}}.
 \end{lemma}%UNFOLD
 
 The statistic 
-$\qiform{\svsig}{\svmu} - \qform{\wrapProj{\svsig}{\hejG}}{\svmu}$, for the
+$\qiform{\svsig}{\svmu} - \qform{\proj{\svsig}{\hejG}}{\svmu}$, for the
 case where \hejG is some rows of the $\nlatf \times \nlatf$ identity matrix,
 was first proposed by Rao, and its distribution under Gaussian returns was 
 later found by Giri. \cite{rao1952,giri1964likelihood} This test statistic
@@ -1672,7 +1682,7 @@ where
 %%and the proof of \theoremref{inv_distribution}, 
 %it suffices to prove that
 %$$
-%\dbyd{\wrapProj{\pvsm}{\hejGt}}{\pvsm} = 
+%\dbyd{\proj{\pvsm}{\hejGt}}{\pvsm} = 
 %-\wrapParens{\AkronA{\tr{\hejGt}}} \wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm}{\hejGt}}}}}
 %\wrapParens{\AkronA{\hejGt}}.
 %$$
@@ -1686,9 +1696,9 @@ where
 %Using this, and the chain rule, we have:
 %\begin{equation*}
 %\begin{split}
-%\dbyd{\wrapProj{\pvsm}{\hejGt}}{\pvsm} 
+%\dbyd{\proj{\pvsm}{\hejGt}}{\pvsm} 
 %&=
-%\dbyd{\wrapProj{\pvsm}{\hejGt}}{\minv{\wrapParens{\qoform{\pvsm}{\hejGt}}}} 
+%\dbyd{\proj{\pvsm}{\hejGt}}{\minv{\wrapParens{\qoform{\pvsm}{\hejGt}}}} 
 %\dbyd{\minv{\wrapParens{\qoform{\pvsm}{\hejGt}}}}{\qoform{\pvsm}{\hejGt}}
 %\dbyd{\qoform{\pvsm}{\hejGt}}{\pvsm}\\
 %&= 
@@ -1759,8 +1769,8 @@ more complicated.
 %%\begin{equation*}
 %%\begin{split}
 %%\pportwoptFoo{\Rbuj,\zerJ,} 
- %%&\defeq c \wrapProj{\pvsig}{\zerJ}\pvmu,\\
- %%c &= \frac{\Rbuj}{\sqrt{\qform{\wrapProj{\pvsig}{\zerJ}}{\pvmu}}}.
+ %%&\defeq c \proj{\pvsig}{\zerJ}\pvmu,\\
+ %%c &= \frac{\Rbuj}{\sqrt{\qform{\proj{\pvsig}{\zerJ}}{\pvmu}}}.
 %%\end{split}
 %%\end{equation*}
 %When $\rfr > 0$ the solution is unique.
@@ -2071,9 +2081,9 @@ for $\rfr \ge 0, \Rbuj > 0$ is solved by
 \begin{equation*}
 \begin{split}
 \pportwoptFoo{\Rbuj,\hejG,} &\defeq c \wrapParens{\minv{\pvsig}{\pRegco} -
-	\wrapProj{\pvsig}{\hejG}\pRegco}\vfact[i],\\
+	\proj{\pvsig}{\hejG}\pRegco}\vfact[i],\\
  c &= \frac{\fvola[i]\Rbuj}{\sqrt{\qiform{\pvsig}{\wrapParens{\pRegco\vfact[i]}} - 
-	\qform{\wrapProj{\pvsig}{\hejG}}{\wrapParens{\pRegco\vfact[i]}}}}.
+	\qform{\proj{\pvsig}{\hejG}}{\wrapParens{\pRegco\vfact[i]}}}}.
 \end{split}
 \end{equation*}
 Moreover, this is the unique solution whenever $\rfr > 0$.
@@ -2094,17 +2104,17 @@ Define the `delta inverse second moment' as
 \begin{equation}
 \label{eqn:cond_del_hej_def}
 \Delhej\minv{\pvsm[{\sfact[]}]} \defeq \minv{\pvsm[{\sfact[]}]} -
-\wrapProj{\pvsm[{\sfact[]}]}{\hejGt},
+\proj{\pvsm[{\sfact[]}]}{\hejGt},
 \end{equation}
 where $\pvsm[{\sfact[]}]$ is defined as in \eqnref{cond_pvsm_def}.
 The elements of $\Delhej\minv{\pvsm[{\sfact[]}]}$
 are  
 \begin{equation*}
 \Delhej\minv{\pvsm} =
-\twobytwo{ \qiform{\pvsig}{\pRegco} - \qform{\wrapProj{\pvsig}{\hejG}}{\pRegco} }{
--\tr{\pRegco}\minv{\pvsig} + \tr{\pRegco}\wrapProj{\pvsig}{\hejG}}{
--\minv{\pvsig}\pRegco + \wrapProj{\pvsig}{\hejG}\pRegco}{
-\minv{\pvsig} - \wrapProj{\pvsig}{\hejG}}.
+\twobytwo{ \qiform{\pvsig}{\pRegco} - \qform{\proj{\pvsig}{\hejG}}{\pRegco} }{
+-\tr{\pRegco}\minv{\pvsig} + \tr{\pRegco}\proj{\pvsig}{\hejG}}{
+-\minv{\pvsig}\pRegco + \proj{\pvsig}{\hejG}\pRegco}{
+\minv{\pvsig} - \proj{\pvsig}{\hejG}}.
 \end{equation*}
 In particular, the Markowitz coefficient from
 \lemmaref{hej_cond_sr_optimal_portfolio} appears in the lower left

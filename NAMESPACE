@@ -1,3 +1,3 @@
 export(itheta_vcov)
-export(marko_vcov)
+export(mp_vcov)
 export(theta_vcov)

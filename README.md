@@ -42,7 +42,7 @@ First for unconditional returns:
 ```r
 set.seed(1001)
 X <- matrix(rnorm(1000 * 3), ncol = 3)
-ism <- marko_vcov(X, fit.intercept = TRUE)
+ism <- mp_vcov(X, fit.intercept = TRUE)
 walds <- ism$W/sqrt(diag(ism$What))
 print(t(walds))
 ```
@@ -75,7 +75,7 @@ Wtrue <- 5 * matrix(rnorm(n.feat * n.ret), ncol = n.feat)
 Sigma <- cov(matrix(rnorm(100 * n.ret), ncol = n.ret))
 Sigma <- Sigma + diag(seq(from = 1, to = 3, length.out = n.ret))
 X <- Xgen(Wtrue, Sigma, Feat)
-ism <- marko_vcov(X, feat = Feat, fit.intercept = TRUE)
+ism <- mp_vcov(X, feat = Feat, fit.intercept = TRUE)
 
 walds <- ism$W/sqrt(diag(ism$What))
 print(t(walds))
@@ -94,7 +94,7 @@ print(t(walds))
 # s.e.
 require(sandwich)
 
-ism.rse <- marko_vcov(X, feat = Feat, vcov.func = sandwich::vcovHAC, 
+ism.rse <- mp_vcov(X, feat = Feat, vcov.func = sandwich::vcovHAC, 
     fit.intercept = TRUE)
 walds.rse <- ism.rse$W/sqrt(diag(ism.rse$What))
 print(t(walds.rse))
@@ -122,7 +122,7 @@ Wtrue <- 5 * matrix(rnorm(n.feat * n.ret), ncol = n.feat)
 Sigma <- cov(matrix(rnorm(100 * n.ret), ncol = n.ret))
 Sigma <- Sigma + diag(seq(from = 1, to = 3, length.out = n.ret))
 X <- Xgen(Wtrue, Sigma, Feat)
-ism <- marko_vcov(X, feat = Feat, fit.intercept = TRUE)
+ism <- mp_vcov(X, feat = Feat, fit.intercept = TRUE)
 
 Wcomp <- cbind(0, Wtrue)
 errs <- ism$W - Wcomp
@@ -151,8 +151,7 @@ qqline(Zerr, col = 2)
 
 ### Fama French data
 
-Now load the Fama French 3 factor portfolios, and analyze the Markowitz
-portfolio on them.
+Now load the Fama French 3 factor portfolios.
 
 
 ```r
@@ -170,8 +169,14 @@ rfr <- ff.data[, "RF"]
 ff.ret <- cbind(ff.data[, "Mkt.RF"], ff.data[, c("HML", 
     "SMB")] - rep(rfr, 2))
 colnames(ff.ret)[1] <- "MKT"
+```
 
-ism <- marko_vcov(ff.ret, fit.intercept = TRUE)
+
+Now analyze the Markowitz portfolio on them.
+
+
+```r
+ism <- mp_vcov(ff.ret, fit.intercept = TRUE)
 walds <- ism$W/sqrt(diag(ism$What))
 print(t(walds))
 ```
@@ -185,7 +190,7 @@ print(t(walds))
 # now consider the hedging constraint: no
 # covariance with the market:
 Gmat <- matrix(c(1, 0, 0), nrow = 1)
-ism <- marko_vcov(ff.ret, fit.intercept = TRUE, Gmat = Gmat)
+ism <- mp_vcov(ff.ret, fit.intercept = TRUE, Gmat = Gmat)
 walds <- ism$W/sqrt(diag(ism$What))
 print(t(walds))
 ```

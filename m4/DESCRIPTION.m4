@@ -17,9 +17,9 @@ Description: a collection of tools for analyzing significance of
 Depends: 
     R (>= 3.0.2),
     matrixcalc,
+    sandwich,
     gtools
 Suggests: 
-    sandwich,
     SharpeR,
     testthat, 
     knitr

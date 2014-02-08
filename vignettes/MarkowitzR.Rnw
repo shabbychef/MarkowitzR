@@ -71,7 +71,7 @@ opts_chunk$set(cache=TRUE,cache.path="cache/MarkowitzR")
 
 #opts_chunk$set(fig.path="figure/",dev=c("pdf","cairo_ps"))
 opts_chunk$set(fig.path="figure/MarkowitzR",dev=c("pdf"))
-opts_chunk$set(fig.width=5,fig.height=4,dpi=64)
+opts_chunk$set(fig.width=5,fig.height=4,dpi=300)
 
 # doing this means that png files are made of figures;
 # the savings is small, and it looks like shit:
@@ -335,6 +335,7 @@ Example computations via the \MarkowitzR package are illustrated.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}%FOLDUP
+\nocite{pav2013markowitz}
 
 Given \nlatf assets with expected return \pvmu and covariance of return \pvsig,
 define the `\txtMP' as 
@@ -362,8 +363,8 @@ define the `\txtMP' as
 In practice, the population parameters \pvmu and \pvsig are not 
 known and must be estimated from samples. Use of the central limit theorem and
 the delta method gives asymptotic normality of the vector \pportwopt, with a
-covariance that may be estimated from the data. For essentially no extra
-computational work, one also gets an estimate of the 
+covariance that may be estimated from the data. \cite{pav2013markowitz}
+For essentially no extra computational work, one also gets an estimate of the 
 covariance of \pportwopt with $\minv{\pvsig}$.
 %UNFOLD
 
@@ -373,8 +374,8 @@ covariance of \pportwopt with $\minv{\pvsig}$.
 \subsection{Fake data}%FOLDUP
 
 The variance-covariance matrix of `inverse theta' is computed by
-{\code itheta\_vcov}; a fancier version is given by 
-{\code marko\_vcov}. The primary use case of the variance-covariance
+{\code itheta\_vcov}; a fancier, more general version is given by 
+{\code mp\_vcov}. The primary use case of the variance-covariance
 matrix is to compute the marginal Wald
 test statistics under the null of zero weight in the \txtMP. 
 The basic procedure is illustrated here:
@@ -419,7 +420,7 @@ do.both <- function(rets,...) {
 	rownames(retval) <- c("Britten Jones t-stat","weird trick Wald stat")
 	return(retval)
 }
-n.day <- 1000
+n.day <- 400
 n.stock <- 5
 @
 
@@ -445,17 +446,119 @@ rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
 print(do.both(rets))
 @
 
+The functions {\code itheta\_vcov} and {\code mp\_vcov} also compute 
+the \txtMP itself, as below. Note that for this example, the mean return
+of each stock is \Sexpr{0.1}, and the covariance matrix is \eye, thus the
+\txtMP is uniformly \Sexpr{0.1}.
+
+<<'get_mp',echo=TRUE>>=
+# returns under the alternative
+set.seed(as.integer(charToRaw("464dcbea-375b-49d0-8f38-b48b5a33c7ea")))
+rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
+set.coln(rets)
+asymv <- itheta_vcov(- as.matrix(rets))
+qidx <- 2:asymv$pp
+mp <- t(asymv$mu[qidx])
+print(mp)
+@
+
+\subsubsection{Conditional Expectations}
+
+Now consider the model where the mean return is conditional
+on some features observable prior to the period where the
+investment decision is required. The \txtMP is replaced by
+the `Markowitz Coefficient' which linearly scales the features
+into a portfolio. \cite{pav2013markowitz}
+
+Here we generate such a population, then check the Markowitz
+Coefficient
+
+<<'conditional',echo=TRUE>>=
+# generate data with given W, Sigma
+Xgen <- function(W,Sigma,Feat) {
+ Btrue <- Sigma %*% W
+ Xmean <- Feat %*% t(Btrue)
+ Shalf <- chol(Sigma)
+ X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
+}
+n.feat <- 4
+n.ret <- 8
+n.obs <- 2000
+set.seed(12321)
+
+Feat <- matrix(rnorm(n.obs * n.feat),ncol=n.feat)
+Wtrue <- 10 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
+Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
+Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
+X <- Xgen(Wtrue,Sigma,Feat)
+ism <- mp_vcov(X,feat=Feat,fit.intercept=TRUE)
+
+# a bit of legerdemain b/c there's an intercept term
+# fit
+Wcomp <- cbind(0,Wtrue)
+# the true value:
+print(Wcomp)
+print(ism$W)
+@
+
+Here is a scatter of the fit value against the true value of the
+Markowitz Coefficient:
+
+<<'scatfit',echo=TRUE,cache=FALSE,fig.cap=paste("Scatter of the fit value against the true value of the Markowitz Coefficien is shown, for",n.ret,"assets, and",n.feat,"predictive features, given",n.obs,"days of observations of Gaussian returns. The $y=x$ line is plotted in green.")>>=
+# scatter them against each other
+w.true <- Wcomp
+w.fit <- ism$W
+dim(w.true) <- c(length(w.true),1)
+dim(w.fit) <- c(length(w.fit),1)
+plot(w.true, w.fit, main="Markowitz Coefficient",
+  	 xlab="True Value ", ylab="Fit Value ", pch=1)
+#abline(lm(w.fit ~ w.true), col="red") 
+abline(a=0,b=1, col="green") 
+@
+
+
+\subsubsection{Asymptotic Normality}
+
+<<'normality',echo=TRUE,cache=FALSE>>=
+
+n.feat <- 4
+n.ret <- 8
+n.obs <- 2000
+set.seed(12321)
+Feat <- matrix(rnorm(n.obs * n.feat),ncol=n.feat)
+Wtrue <- 10 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
+Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
+Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
+X <- Xgen(Wtrue,Sigma,Feat)
+ism <- mp_vcov(X,feat=Feat,fit.intercept=TRUE)
+Wcomp <- cbind(0,Wtrue)
+# compute the errors
+errs <- ism$W - Wcomp
+dim(errs) <- c(length(errs),1)
+# transform them to approximately identity covariance
+Zerr <- solve(t(chol(ism$What)),errs)
+# did it work?
+qqnorm(Zerr)
+qqline(Zerr,col=2)
+@
+
+\subsubsection{Portfolio Constraints}
+
 Now consider the \emph{constrained} portfolio which has no covariance with the 
 portfolio equal dollar long in each of the fake assets. The Wald statistics are
 computed as follows
 
 <<'cons_one',echo=TRUE,cache=FALSE>>=
-marko.ws <- function(rets,...) {
+marko.ws <- function(rets,ret.what=c('wald','mp'),...) {
 	set.coln(rets)
+	ret.what <- match.arg(ret.what)
 	# 'flipping the sign on returns is idiomatic'
-	asymv <- marko_vcov(as.matrix(rets),...)
-	wald.s <- asymv$W / sqrt(diag(asymv$What))
-	return(t(wald.s))
+	asymv <- mp_vcov(as.matrix(rets),...)
+	mp <- t(asymv$W)
+  stat <- switch(ret.what,
+		mp = mp,
+		wald = mp / sqrt(diag(asymv$What)))
+	return(stat)
 }
 # first for the case where the real Markowitz Portfolio is actually
 # equal dollar long in each stock.
@@ -466,42 +569,33 @@ print(marko.ws(rets,Gmat=Gmat))
 # and in the case where it is not.
 set.seed(as.integer(charToRaw("420f1dfd-b19b-4175-83b3-b96548264bf8")))
 rets <- matrix(rnorm(n.day * n.stock,mean=0),nrow=n.day)
-mu.off <-
-t(matrix(seq(from=-0.8,to=0.8,length.out=n.stock),nrow=n.stock,ncol=n.day))
+mu.off <- t(matrix(seq(from=-0.8,to=0.8,length.out=n.stock),nrow=n.stock,ncol=n.day))
 rets <- rets + mu.off
 Gmat <- matrix(1,nrow=1,ncol=n.stock)
 print(marko.ws(rets,Gmat=Gmat))
 @
 
+The \txtMP is produced by the same code:
 
+<<'cons_two',echo=TRUE,cache=FALSE>>=
 
-Example code showing normality:
-<<'normality',echo=TRUE,cache=FALSE>>=
-# generate data with given W, Sigma
-Xgen <- function(W,Sigma,Feat) {
- Btrue <- Sigma %*% W
- Xmean <- Feat %*% t(Btrue)
- Shalf <- chol(Sigma)
- X <- Xmean + matrix(rnorm(prod(dim(Xmean))),ncol=dim(Xmean)[2]) %*% Shalf
-}
-
-n.feat <- 3
-n.ret <- 11
-n.obs <- 5000
-set.seed(121)
-Feat <- matrix(rnorm(n.obs * n.feat),ncol=n.feat)
-Wtrue <- 10 * matrix(rnorm(n.feat * n.ret),ncol=n.feat)
-Sigma <- cov(matrix(rnorm(100*n.ret),ncol=n.ret))
-Sigma <- Sigma + diag(seq(from=1,to=3,length.out=n.ret))
-X <- Xgen(Wtrue,Sigma,Feat)
-ism <- marko_vcov(X,feat=Feat,fit.intercept=TRUE)
-Wcomp <- cbind(0,Wtrue)
-errs <- ism$W - Wcomp
-dim(errs) <- c(length(errs),1)
-Zerr <- solve(t(chol(ism$What)),errs)
-qqnorm(Zerr)
-qqline(Zerr,col=2)
+# first for the case where the real Markowitz Portfolio is actually
+# equal dollar long in each stock.
+set.seed(as.integer(charToRaw("0bda3ab6-53a7-4f5a-aa6a-0fe21edbaa20")))
+rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
+Gmat <- matrix(1,nrow=1,ncol=n.stock)
+print(marko.ws(rets,ret.what='mp',Gmat=Gmat))
+# and in the case where it is not.
+set.seed(as.integer(charToRaw("420f1dfd-b19b-4175-83b3-b96548264bf8")))
+rets <- matrix(rnorm(n.day * n.stock,mean=0),nrow=n.day)
+mu.off <- t(matrix(seq(from=-0.8,to=0.8,length.out=n.stock),nrow=n.stock,ncol=n.day))
+rets <- rets + mu.off
+Gmat <- matrix(1,nrow=1,ncol=n.stock)
+print(marko.ws(rets,ret.what='mp',Gmat=Gmat))
 @
+
+
+
 
 
 %# repeat under the alternative;
@@ -552,8 +646,9 @@ colnames(ff.ret)[1] <- "MKT"
 # try both procedures:
 print(do.both(ff.ret))
 # try with robust s.e.
-require(sandwich)
-print(do.both(ff.ret,vcov.func=sandwich::vcovHAC))
+if (require(sandwich)) {
+	print(do.both(ff.ret,vcov.func=sandwich::vcovHAC))
+}
 @
 
 The Wald statistics are slightly less optimistic than the

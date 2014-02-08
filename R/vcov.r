@@ -193,7 +193,7 @@ theta_vcov <- function(X,vcov.func=vcov,fit.intercept=TRUE) {
 #' \item{n}{the number of rows in \code{X}.}
 #' \item{pp}{the number of assets plus \code{as.numeric(fit.intercept)}.}
 #' @keywords univar 
-#' @seealso \code{\link{theta_vcov}}, \code{\link{marko_vcov}}.
+#' @seealso \code{\link{theta_vcov}}, \code{\link{mp_vcov}}.
 #' @rdname itheta_vcov
 #' @export 
 #' @template etc
@@ -209,7 +209,7 @@ theta_vcov <- function(X,vcov.func=vcov,fit.intercept=TRUE) {
 #'
 #' @note
 #'
-#' A more general form of this function exists as \code{\link{marko_vcov}}.
+#' A more general form of this function exists as \code{\link{mp_vcov}}.
 #'
 #' @note
 #'
