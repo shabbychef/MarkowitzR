@@ -458,7 +458,7 @@ whose rows are the vectors \tr{\avreti[i]}. The na\"{i}ve sample estimator
 \end{equation}
 is an unbiased estimator since $\pvsm = \E{\gram{\avreti}}$.
 
-\subsection{Matrix Derivatives}%FOLDUP
+\subsection{Matrix derivatives}%FOLDUP
 
 \label{subsec:matrix_derivatives}
 
@@ -2160,6 +2160,144 @@ consistent estimator, \svvar.
 \end{theorem}%UNFOLD
 
 %UNFOLD
+\subsection{Conditional Expectation and Heteroskedasticity with Subspace and Hedging Constraint}%FOLDUP
+
+Finally, we can combine the subspace and hedging constraints with the 
+conditional model of
+\subsecref{cond_ret_het}. This extension is trivial only in the case
+where the rows of \hejG are spanned by the rows of \zerJ. So, for
+the remainder of this section, we will assume this is the case.
+The problem considered here is the most general case solved in this
+note; the previous sections are all specializations of it in one way
+or another.
+
+\begin{lemma}[Hedged Conditional \txtSR optimal portfolio]%FOLDUP
+\label{lemma:zerhej_cond_sr_optimal_portfolio}
+Let $\zerJ$ be a given $\nlatfzer \times \nlatf$ matrix, the rows of which
+span the rows of $\hejG$, a given $\nlatfhej \times \nlatf$ matrix of 
+rank \nlatfhej. Under the model in \eqnref{cond_model_IV},
+conditional on observing \fvola[i] and \vfact[i], 
+the portfolio optimization problem
+\begin{equation}
+\argmax_{\substack{\pportw :\,\zerJc\pportw = \vzero,\\
+\hejG\pvsig \pportw = \vzero,\\
+ \Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} \le \Rbuj^2}}
+\frac{\Econd{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} -
+\rfr}{\sqrt{\Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]}}},
+\label{eqn:zerhej_cond_sr_optimal_portfolio_problem_I}
+\end{equation}
+for $\rfr \ge 0, \Rbuj > 0$ is solved by
+\begin{equation*}
+\begin{split}
+\pportwoptFoo{\Rbuj,\zerJ,\hejG,} &\defeq c \wrapParens{\proj{\pvsig}{\zerJ}\pRegco -
+	\proj{\pvsig}{\hejG}\pRegco}\vfact[i],\\
+ c &= \frac{\fvola[i]\Rbuj}{\sqrt{\qform{\proj{\pvsig}{\zerJ}}{\wrapParens{\pRegco\vfact[i]}} - 
+	\qform{\proj{\pvsig}{\hejG}}{\wrapParens{\pRegco\vfact[i]}}}}.
+\end{split}
+\end{equation*}
+Moreover, this is the unique solution whenever $\rfr > 0$.
+\end{lemma}%UNFOLD
+The same cautions regarding multiperiod portfolio choice apply to the
+above lemma. Results analogous to those of \subsecref{hedging_constraint} 
+follow, but with one minor modification to the analogue of 
+\definitionref{delta_inv_second_moment}.
+
+To perform inference on the hedged Markowitz coefficient, we need to consider
+the difference of two projected second moment matrices.
+
+\begin{definition}[Delta Inverse Second Moment]%FOLDUP
+\label{definition:cond_delta_inv_second_moment}
+Given \zerJ and \hejG, define
+\begin{equation}
+\label{eqn:zerJ_twid_def}
+\zerJt \defeq \twobytwossym{\eye_{\nfac}}{0}{\zerJ},\,\mbox{and}\,
+\hejGt \defeq \twobytwossym{\eye_{\nfac}}{0}{\hejG},
+\end{equation}
+where $\eye_{\nfac}$ is the $\nfac\times\nfac$ identity matrix.
+Define the `delta inverse second moment' as
+\begin{equation}
+\label{eqn:cond_del_hej_def}
+\Delzh\minv{\pvsm[{\sfact[]}]} \defeq 
+\proj{\pvsm[{\sfact[]}]}{\zerJt} -
+\proj{\pvsm[{\sfact[]}]}{\hejGt},
+\end{equation}
+where $\pvsm[{\sfact[]}]$ is defined in \eqnref{cond_pvsm_def}.
+\end{definition}%UNFOLD
+
+Once again, the delta inverse second moment contains the Markowitz coefficient,
+as in the following lemma.
+
+\begin{lemma}%FOLDUP
+Under %the definitions in 
+\definitionref{cond_delta_inv_second_moment},
+%Then $\Delzh\minv{\pvsm[{\sfact[]}]}$ equals
+%\begin{multline}
+%\Delzh\minv{\pvsm} =\\
+\begin{equation*}
+\Delzh\minv{\pvsm} =
+\twobytwo{ 
+\qform{\proj{\pvsig}{\zerJ}}{\pRegco} - \qform{\proj{\pvsig}{\hejG}}{\pRegco} }{
+-\tr{\pRegco}\proj{\pvsig}{\zerJ} + \tr{\pRegco}\proj{\pvsig}{\hejG}}{
+-\proj{\pvsig}{\zerJ}\pRegco + \proj{\pvsig}{\hejG}\pRegco}{
+\proj{\pvsig}{\zerJ} - \proj{\pvsig}{\hejG}}.
+\end{equation*}
+%\end{multline}
+\end{lemma}%UNFOLD
+%\begin{note}
+In particular, the Markowitz coefficient from
+\lemmaref{zerhej_cond_sr_optimal_portfolio} appears in the lower left
+corner of 
+$-{\Delzh\minv{\pvsm[{\sfact[]}]}}$, and the
+denominator of the constant $c$ from 
+\lemmaref{zerhej_cond_sr_optimal_portfolio} depends on a quadratic form
+of \vfact[i] with the upper left corner of
+${\Delzh\minv{\pvsm[{\sfact[]}]}}$.
+%\end{note}
+
+
+
+\begin{theorem}%FOLDUP
+\label{theorem:zerhej_cond_inv_distribution_II}
+Let $\svsm[{\sfact[]}] \defeq \oneby{\ssiz}\sum_i \ogram{\aavreti[i+1]}$,
+based on \ssiz \iid samples of \asvec{\fvola,\tr{\vfact[{}]},\tr{\vreti}},
+where 
+$$
+\aavreti[i+1] \defeq \asvec{\fvola[i]\tr{\vfact[i]},\fvola[i]\tr{\vreti[i+1]}}.
+$$
+Let \pvvar be the variance of $\fvech{\ogram{\aavreti}}$.
+Define 
+$\Delhej\minv{\pvsm[{\sfact[]}]}$ as in 
+\eqnref{cond_del_hej_def} for the given \zerJt and \hejGt.
+%$\wrapParens{\nfac+\nlatfzer}\times\wrapParens{\nlatf+\nfac}$ matrix \zerJt
+%and $\wrapParens{\nfac+\nlatfhej}\times\wrapParens{\nlatf+\nfac}$ matrix \hejGt.
+
+Then, asymptotically in \ssiz, 
+\begin{equation}
+\sqrt{\ssiz}\wrapParens{\fvech{\Delhej\minv{\svsm[{\sfact[]}]}} -
+\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}} 
+\rightsquigarrow 
+\normlaw{0,\qoform{\pvvar}{\Mtx{H}}},
+\label{eqn:zerhej_cond_mvclt_isvsm_II}
+\end{equation}
+where
+\begin{equation*}
+\Mtx{H} = - \EXD{\wrapParens{\broj{\pvsm[{\sfact[]}]}{\zerJt} -
+\broj{\pvsm[{\sfact[]}]}{\hejGt}}},
+\end{equation*}
+where we define
+\begin{equation*}
+\broj{\pvsm}{\Mtx{A}} \defeq
+\wrapParens{\AkronA{\tr{\Mtx{A}}}}
+\wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm}{\Mtx{A}}}}}}
+\wrapParens{\AkronA{\Mtx{A}}}.
+\end{equation*}
+
+
+Furthermore, we may replace \pvvar in this equation with an asymptotically
+consistent estimator, \svvar.
+\end{theorem}%UNFOLD
+
+%UNFOLD
 %UNFOLD
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2526,3 +2664,4 @@ This notebook is available online. \cite{SEP2013example}
 \end{document}
 %for vim modeline: (do not edit)
 % vim:fdm=marker:fmr=FOLDUP,UNFOLD:cms=%%s:syn=rnoweb:ft=rnoweb:nu
+
