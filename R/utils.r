@@ -74,7 +74,8 @@ ivech <- function(x) {
 	} else {
 		halfproj <- solve(.qoform(Theta,M))
 		iT <- .qform(halfproj,M)
-		iiT <- .xkronx(t(M)) %*% (.xkronx(solve(halfproj)) %*% .xkronx(M))
+		#iT <- .Proj(M,Theta)  # redundant computations.
+		iiT <- .xkronx(t(M)) %*% (.xkronx(halfproj) %*% .xkronx(M))
 	}
 	retval <- list(iT=iT,iiT=iiT)
 	return(retval)

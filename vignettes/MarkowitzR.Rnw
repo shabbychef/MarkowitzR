@@ -565,9 +565,13 @@ The portfolio and Wald statistics are computed as follows:
 # first for the case where the real Markowitz Portfolio is actually
 # just 'the market': equal dollar long in each stock.
 set.seed(as.integer(charToRaw("dbeebe3f-da7e-4d11-b014-feac88a1d6cb")))
-rets <- matrix(rnorm(n.day * n.stock,mean=3e-1),nrow=n.day)
+rets <- matrix(rnorm(n.day * n.stock,mean=5e-1),nrow=n.day)
 Jmat <- matrix(c(1,1,1,-1),nrow=2,ncol=2*n.stock)  # overbuilt
 Jmat <- Jmat[,1:n.stock]  # fixed.
+print(Jmat)
+# first, unconstrained:
+print(wrap.mp(rets))
+# now with subspace constraint:
 print(wrap.mp(rets,Jmat=Jmat))
 # and print the portfolio too:
 print(wrap.mp(rets,ret.what='mp',Jmat=Jmat))
