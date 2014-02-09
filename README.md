@@ -196,8 +196,8 @@ print(t(walds))
 ```
 
 ```
-##            MKT  HML  SMB
-## Intercept 0.56 0.26 -1.9
+##           MKT  HML  SMB
+## Intercept 1.6 0.26 -1.9
 ```
 
 
