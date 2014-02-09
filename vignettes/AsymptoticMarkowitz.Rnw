@@ -892,7 +892,7 @@ using sample statistics.
 \section{Distribution under Gaussian returns}%FOLDUP
 
 The goal of this section is to derive a variant of 
-\theoremref{inv_distribution} for the case where \vreti follow a 
+\theoremref{inv_distribution} for the case where \vreti follows a 
 multivariate Gaussian distribution. First, 
 assuming $\vreti\sim\normlaw{\pvmu,\pvsig}$, we can express the density
 of \vreti, and of \svsm, in terms of \nlatf, \ssiz, and \pvsm.
@@ -1325,7 +1325,60 @@ sample portfolio based on the same transformation of $\minv{\svsm}$;
 find the asymptotic distribution of the sample portfolio in terms of \pvvar.
 %which can be estimated empirically, or via assuming Gaussian returns.
 
-\subsection{Subspace Constraint} %FOLDUP
+To simplify notation, we need the following definitions and a lemma.
+
+\begin{definition}[Risk Projection]%FOLDUP
+\label{definition:risk_projection}
+Define the covariance-projection operator as
+\begin{equation}
+\proj{\pvsig}{\Mtx{A}} \defeq \wrapProj{\pvsig}{\Mtx{A}},
+\label{eqn:def_proj}
+\end{equation}
+for conformable matrix \Mtx{A}. The derivative of this operator
+will be shown to be the following operator:
+\begin{equation}
+\broj{\pvsig}{\Mtx{A}} \defeq
+\wrapParens{\AkronA{\tr{\Mtx{A}}}}
+\wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsig}{\Mtx{A}}}}}}
+\wrapParens{\AkronA{\Mtx{A}}}.
+\label{eqn:def_broj}
+\end{equation}
+\end{definition}%UNFOLD
+\begin{lemma}[Derivative of covariance-projection]%FOLDUP
+\label{lemma:der_cov_proj}
+For comformable \pvsig and \Mtx{A},
+\begin{equation}
+\dbyd{\proj{\pvsig}{\Mtx{A}}}{\pvsig} =
+\broj{\pvsig}{\Mtx{A}}.
+\label{eqn:del_proj_is_broj}
+\end{equation}
+\end{lemma}%UNFOLD
+\begin{proof}%FOLDUP
+A well-known fact regarding matrix manipulation \cite{magnus1999matrix} is
+$$
+\fvec{\Mtx{A}\Mtx{B}\Mtx{C}} = \wrapParens{\Mtx{A}\kron\tr{\Mtx{C}}}
+\fvec{\Mtx{B}},\quad\mbox{therefore,}\quad
+\dbyd{\Mtx{A}\Mtx{B}\Mtx{C}}{\Mtx{B}} = \Mtx{A}\kron\tr{\Mtx{C}}.
+$$
+Using this twice after the chain rule, we have:
+\begin{equation*}
+\begin{split}
+\dbyd{\proj{\pvsig}{\Mtx{A}}}{\pvsig}
+&=
+\dbyd{\proj{\pvsig}{\Mtx{A}}}{\minv{\wrapParens{\qoform{\pvsig}{\Mtx{A}}}}} 
+\dbyd{\minv{\wrapParens{\qoform{\pvsig}{\Mtx{A}}}}}{\qoform{\pvsig}{\Mtx{A}}}
+\dbyd{\qoform{\pvsig}{\Mtx{A}}}{\pvsig},\\
+&= 
+\wrapParens{\AkronA{\tr{\Mtx{A}}}} 
+\dbyd{\minv{\wrapParens{\qoform{\pvsig}{\Mtx{A}}}}}{\qoform{\pvsig}{\Mtx{A}}}
+\wrapParens{\AkronA{\Mtx{A}}}.
+\end{split}
+\end{equation*}
+\lemmaref{deriv_vech_matrix_inverse} gives the middle term, completing the
+proof.
+\end{proof}%UNFOLD
+
+\subsection{Subspace constraint} %FOLDUP
 \label{subsec:subspace_constraint}
 
 Consider the \emph{constrained} portfolio optimization problem
@@ -1352,17 +1405,7 @@ for \pportx, but then find the asymptotic distribution of the resultant
 \pportx are, respectively, \trAB{\pportx}{\zerJ\pvmu} and 
 \qform{\qoform{\pvsig}{\zerJ}}{\pportx}. Thus we can plug in
 $\zerJ\pvmu$ and \qoform{\pvsig}{\zerJ} into 
-\lemmaref{sr_optimal_portfolio} to get the following analogue; to simplify
-notation, we will need the following projection operator.
-
-\begin{definition}[Risk Projection]
-\label{definition:risk_projection}
-Define the covariance-projection operator as
-\begin{equation}
-\proj{\pvsig}{\Mtx{A}} \defeq \wrapProj{\pvsig}{\Mtx{A}},
-\end{equation}
-for conformable matrix \Mtx{A}.
-\end{definition}
+\lemmaref{sr_optimal_portfolio} to get the following analogous lemma.
 
 \begin{lemma}[subspace constrained \txtSR optimal portfolio]%FOLDUP
 \label{lemma:subsp_cons_sr_optimal_portfolio}
@@ -1390,7 +1433,6 @@ We can easily find the asymptotic distribution of
 \sportwoptFoo{\Rbuj,\zerJ,}, the sample analogue of the optimal portfolio
 in \lemmaref{subsp_cons_sr_optimal_portfolio}. First define the
 subspace second moment.
-
 
 %\begin{definition}[Subspace Second Moment]%FOLDUP
 %\label{definition:subspace_second_moment}
@@ -1459,9 +1501,7 @@ Then, asymptotically in \ssiz,
 \end{equation}
 where
 \begin{equation*}
-\Mtx{H} = - \EXD{\wrapParens{\AkronA{\tr{\zerJt}}} 
-\wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}}} 
-\wrapParens{\AkronA{\zerJt}}}.
+\Mtx{H} = - \EXD{\broj{\pvsm}{\zerJt}}.
 \end{equation*}
 \end{theorem}%UNFOLD
 \begin{proof}%FOLDUP
@@ -1469,45 +1509,15 @@ By the multivariate delta method, it suffices to prove that
 $$
 \Mtx{H} = \dbyd{\fvech{\proj{\svsm}{\zerJt}}}{\fvech{\pvsm}}.
 $$
-Via \lemmaref{misc_derivs}, it suffices to prove that
-$$
-\dbyd{\proj{\pvsm}{\zerJt}}{\pvsm}
-= 
-- \wrapParens{\AkronA{\tr{\zerJt}}} \wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}}}
-\wrapParens{\AkronA{\zerJt}}.
-$$
-
-A well-known fact regarding matrix manipulation \cite{magnus1999matrix} is
-$$
-\fvec{\Mtx{A}\Mtx{B}\Mtx{C}} = \wrapParens{\Mtx{A}\kron\tr{\Mtx{C}}}
-\fvec{\Mtx{B}},\quad\mbox{therefore,}\quad
-\dbyd{\Mtx{A}\Mtx{B}\Mtx{C}}{\Mtx{B}} = \Mtx{A}\kron\tr{\Mtx{C}}.
-$$
-Using this, and the chain rule, we have:
-\begin{equation*}
-\begin{split}
-\dbyd{\proj{\pvsm}{\zerJt}}{\pvsm}
-&=
-\dbyd{\proj{\pvsm}{\zerJt}}{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}} 
-\dbyd{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}}{\qoform{\pvsm}{\zerJt}}
-\dbyd{\qoform{\pvsm}{\zerJt}}{\pvsm}\\
-&= 
-\wrapParens{\AkronA{\tr{\zerJt}}} 
-\dbyd{\minv{\wrapParens{\qoform{\pvsm}{\zerJt}}}}{\qoform{\pvsm}{\zerJt}}
-\wrapParens{\AkronA{\zerJt}}.
-\end{split}
-\end{equation*}
-\lemmaref{deriv_vech_matrix_inverse} gives the middle term, completing the
-proof.
+This follows from \lemmaref{der_cov_proj} and \lemmaref{misc_derivs}.
 \end{proof}
 An analogue of \corollaryref{portwoptR_dist} gives the asymptotic 
 distribution of $\pportwoptFoo{\Rbuj,\zerJ,}$
 defined in \lemmaref{subsp_cons_sr_optimal_portfolio}.
 %UNFOLD
 
-
 %UNFOLD
-\subsection{Hedging Constraint} %FOLDUP
+\subsection{Hedging constraint} %FOLDUP
 \label{subsec:hedging_constraint}
 % 2FIX: nstrat nstrathej fuck. as in, does this make sense in SharpeRatio.rnw? 
 % these show up as k and p, and what are you doing?
@@ -1666,9 +1676,7 @@ $\fvech{\ogram{\avreti}}$.  Then, asymptotically in \ssiz,
 \end{equation}
 where
 \begin{equation*}
-\Mtx{H} = - \EXD{\wrapBracks{\AkronA{\minv{\pvsm}} - 
-\wrapParens{\AkronA{\tr{\hejGt}}} \wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm}{\hejGt}}}}}
-\wrapParens{\AkronA{\hejGt}}}}.
+\Mtx{H} = - \EXD{\wrapBracks{\AkronA{\minv{\pvsm}} - \broj{\pvsm}{\hejGt}}}.
 \end{equation*}
 \label{theorem:delhej_inv_distribution}
 \end{theorem}%UNFOLD
@@ -1736,7 +1744,7 @@ more complicated.
 \end{caution}%UNFOLD
 
 %UNFOLD
-%\subsection{Subspace and Hedging Constraints}%FOLDUP
+%\subsection{Subspace and hedging constraints}%FOLDUP
 %\label{subsec:subspace_and_hedge_constraint}
 
 %In the hedged portfolio optimization problem considered in 
@@ -1779,7 +1787,7 @@ more complicated.
 
 %2FIX: continue.
 %%UNFOLD
-\subsection{Conditional Heteroskedasticity}%FOLDUP
+\subsection{Conditional heteroskedasticity}%FOLDUP
 \label{subsec:cond_het}
 
 The methods described above ignore `volatility clustering', and assume
@@ -1916,7 +1924,7 @@ zero. Analyzing this model is somewhat complicated without moving to a
 more general framework, as in the sequel.
 
 %UNFOLD
-\subsection{Conditional Expectation and Heteroskedasticity}%FOLDUP
+\subsection{Conditional expectation and heteroskedasticity}%FOLDUP
 \label{subsec:cond_ret_het}
 
 Suppose you observe random variables $\fvola[i] > 0$, and 
@@ -2055,116 +2063,118 @@ Furthermore, we may replace \pvvar in this equation with an asymptotically
 consistent estimator, \svvar.
 \end{theorem}%UNFOLD
 %UNFOLD
-\subsection{Conditional Expectation and Heteroskedasticity with Hedging Constraint}%FOLDUP
+%\subsection{Conditional expectation and heteroskedasticity with hedging constraint}%FOLDUP
+
+%A little work allows us to combine the conditional model of
+%\subsecref{cond_ret_het} with the hedging constraint of 
+%\subsecref{hedging_constraint}. Suppose returns follow the model
+%of \eqnref{cond_model_IV}. To prove the following lemma, simply 
+%plug in $\pRegco\vfact[i]$ for \pvmu, and 
+%$\fvola[i]^{-2} \pvsig$ for \pvsig into \lemmaref{cons_sr_optimal_portfolio}.
+
+%\begin{lemma}[Hedged Conditional \txtSR optimal portfolio]%FOLDUP
+%\label{lemma:hej_cond_sr_optimal_portfolio}
+%Let $\hejG$ be a given $\nlatfhej \times \nlatf$ matrix of 
+%rank \nlatfhej. Under the model in \eqnref{cond_model_IV},
+%conditional on observing \fvola[i] and \vfact[i], 
+%the portfolio optimization problem
+%\begin{equation}
+%\argmax_{\substack{\pportw :\,\hejG\pvsig \pportw = \vzero,\\
+ %\Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} \le \Rbuj^2}}
+%\frac{\Econd{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} -
+%\rfr}{\sqrt{\Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]}}},
+%\label{eqn:hej_cond_sr_optimal_portfolio_problem_I}
+%\end{equation}
+%for $\rfr \ge 0, \Rbuj > 0$ is solved by
+%\begin{equation*}
+%\begin{split}
+%\pportwoptFoo{\Rbuj,\hejG,} &\defeq c \wrapParens{\minv{\pvsig}{\pRegco} -
+	%\proj{\pvsig}{\hejG}\pRegco}\vfact[i],\\
+ %c &= \frac{\fvola[i]\Rbuj}{\sqrt{\qiform{\pvsig}{\wrapParens{\pRegco\vfact[i]}} - 
+	%\qform{\proj{\pvsig}{\hejG}}{\wrapParens{\pRegco\vfact[i]}}}}.
+%\end{split}
+%\end{equation*}
+%Moreover, this is the unique solution whenever $\rfr > 0$.
+%\end{lemma}%UNFOLD
+%The same cautions regarding multiperiod portfolio choice apply to the
+%above lemma. Results analogous to those of \subsecref{hedging_constraint} 
+%follow, but with one minor modification to the analogue of 
+%\definitionref{delta_inv_second_moment}.
+
+%\begin{lemma}%FOLDUP
+%Let \hejGt now be the 
+%$\wrapParens{\nfac+\nlatfhej}\times\wrapParens{\nfac+\nlatf}$ matrix,
+%$$
+%\hejGt \defeq \twobytwossym{\eye_{\nfac}}{0}{\hejG},
+%$$
+%where the upper right corner is the $\nfac\times\nfac$ identity matrix.
+%Define the `delta inverse second moment' as
+%\begin{equation}
+%\label{eqn:cond_del_hej_def}
+%\Delhej\minv{\pvsm[{\sfact[]}]} \defeq \minv{\pvsm[{\sfact[]}]} -
+%\proj{\pvsm[{\sfact[]}]}{\hejGt},
+%\end{equation}
+%where $\pvsm[{\sfact[]}]$ is defined as in \eqnref{cond_pvsm_def}.
+%The elements of $\Delhej\minv{\pvsm[{\sfact[]}]}$
+%are  
+%\begin{equation*}
+%\Delhej\minv{\pvsm} =
+%\twobytwo{ \qiform{\pvsig}{\pRegco} - \qform{\proj{\pvsig}{\hejG}}{\pRegco} }{
+%-\tr{\pRegco}\minv{\pvsig} + \tr{\pRegco}\proj{\pvsig}{\hejG}}{
+%-\minv{\pvsig}\pRegco + \proj{\pvsig}{\hejG}\pRegco}{
+%\minv{\pvsig} - \proj{\pvsig}{\hejG}}.
+%\end{equation*}
+%In particular, the Markowitz coefficient from
+%\lemmaref{hej_cond_sr_optimal_portfolio} appears in the lower left
+%corner of 
+%$-\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}$, and the
+%denominator of the constant $c$ from 
+%\lemmaref{hej_cond_sr_optimal_portfolio} depends on a quadratic form
+%of \vfact[i] with the upper right left corner of
+%$\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}$.
+%\end{lemma}%UNFOLD
+
+%\begin{theorem}%FOLDUP
+%\label{theorem:hej_cond_inv_distribution_II}
+%Let $\svsm[{\sfact[]}] \defeq \oneby{\ssiz}\sum_i \ogram{\aavreti[i+1]}$,
+%based on \ssiz \iid samples of \asvec{\fvola,\tr{\vfact[{}]},\tr{\vreti}},
+%where 
+%$$
+%\aavreti[i+1] \defeq \asvec{\fvola[i]\tr{\vfact[i]},\fvola[i]\tr{\vreti[i+1]}}.
+%$$
+%Let \pvvar be the variance of $\fvech{\ogram{\aavreti}}$.
+%Define 
+%$\Delhej\minv{\pvsm[{\sfact[]}]}$ as in 
+%\eqnref{cond_del_hej_def} for given
+%$\wrapParens{\nfac+\nlatfhej}\times\wrapParens{\nlatf+\nfac}$ matrix \hejGt.
+
+%Then, asymptotically in \ssiz, 
+%\begin{equation}
+%\sqrt{\ssiz}\wrapParens{\fvech{\Delhej\minv{\svsm[{\sfact[]}]}} -
+%\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}} 
+%\rightsquigarrow 
+%\normlaw{0,\qoform{\pvvar}{\Mtx{H}}},
+%\label{eqn:hej_cond_mvclt_isvsm_II}
+%\end{equation}
+%where
+%\begin{equation*}
+%\Mtx{H} = - \EXD{\wrapBracks{\AkronA{\minv{\pvsm[{\sfact[]}]}} - 
+%\wrapParens{\AkronA{\tr{\hejGt}}}
+%\wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm[{\sfact[]}]}{\hejGt}}}}}
+%\wrapParens{\AkronA{\hejGt}}}}.
+%\end{equation*}
+%Furthermore, we may replace \pvvar in this equation with an asymptotically
+%consistent estimator, \svvar.
+%\end{theorem}%UNFOLD
+
+%%UNFOLD
+\subsection{Conditional expectation and heteroskedasticity with subspace and hedging constraint}%FOLDUP
 
 A little work allows us to combine the conditional model of
-\subsecref{cond_ret_het} with the hedging constraint of 
-\subsecref{hedging_constraint}. Suppose returns follow the model
-of \eqnref{cond_model_IV}. To prove the following lemma, simply 
-plug in $\pRegco\vfact[i]$ for \pvmu, and 
-$\fvola[i]^{-2} \pvsig$ for \pvsig into \lemmaref{cons_sr_optimal_portfolio}.
-
-\begin{lemma}[Hedged Conditional \txtSR optimal portfolio]%FOLDUP
-\label{lemma:hej_cond_sr_optimal_portfolio}
-Let $\hejG$ be a given $\nlatfhej \times \nlatf$ matrix of 
-rank \nlatfhej. Under the model in \eqnref{cond_model_IV},
-conditional on observing \fvola[i] and \vfact[i], 
-the portfolio optimization problem
-\begin{equation}
-\argmax_{\substack{\pportw :\,\hejG\pvsig \pportw = \vzero,\\
- \Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} \le \Rbuj^2}}
-\frac{\Econd{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]} -
-\rfr}{\sqrt{\Varcond{\trAB{\pportw}{\vreti[i+1]}}{\fvola[i],\vfact[i]}}},
-\label{eqn:hej_cond_sr_optimal_portfolio_problem_I}
-\end{equation}
-for $\rfr \ge 0, \Rbuj > 0$ is solved by
-\begin{equation*}
-\begin{split}
-\pportwoptFoo{\Rbuj,\hejG,} &\defeq c \wrapParens{\minv{\pvsig}{\pRegco} -
-	\proj{\pvsig}{\hejG}\pRegco}\vfact[i],\\
- c &= \frac{\fvola[i]\Rbuj}{\sqrt{\qiform{\pvsig}{\wrapParens{\pRegco\vfact[i]}} - 
-	\qform{\proj{\pvsig}{\hejG}}{\wrapParens{\pRegco\vfact[i]}}}}.
-\end{split}
-\end{equation*}
-Moreover, this is the unique solution whenever $\rfr > 0$.
-\end{lemma}%UNFOLD
-The same cautions regarding multiperiod portfolio choice apply to the
-above lemma. Results analogous to those of \subsecref{hedging_constraint} 
-follow, but with one minor modification to the analogue of 
-\definitionref{delta_inv_second_moment}.
-
-\begin{lemma}%FOLDUP
-Let \hejGt now be the 
-$\wrapParens{\nfac+\nlatfhej}\times\wrapParens{\nfac+\nlatf}$ matrix,
-$$
-\hejGt \defeq \twobytwossym{\eye_{\nfac}}{0}{\hejG},
-$$
-where the upper right corner is the $\nfac\times\nfac$ identity matrix.
-Define the `delta inverse second moment' as
-\begin{equation}
-\label{eqn:cond_del_hej_def}
-\Delhej\minv{\pvsm[{\sfact[]}]} \defeq \minv{\pvsm[{\sfact[]}]} -
-\proj{\pvsm[{\sfact[]}]}{\hejGt},
-\end{equation}
-where $\pvsm[{\sfact[]}]$ is defined as in \eqnref{cond_pvsm_def}.
-The elements of $\Delhej\minv{\pvsm[{\sfact[]}]}$
-are  
-\begin{equation*}
-\Delhej\minv{\pvsm} =
-\twobytwo{ \qiform{\pvsig}{\pRegco} - \qform{\proj{\pvsig}{\hejG}}{\pRegco} }{
--\tr{\pRegco}\minv{\pvsig} + \tr{\pRegco}\proj{\pvsig}{\hejG}}{
--\minv{\pvsig}\pRegco + \proj{\pvsig}{\hejG}\pRegco}{
-\minv{\pvsig} - \proj{\pvsig}{\hejG}}.
-\end{equation*}
-In particular, the Markowitz coefficient from
-\lemmaref{hej_cond_sr_optimal_portfolio} appears in the lower left
-corner of 
-$-\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}$, and the
-denominator of the constant $c$ from 
-\lemmaref{hej_cond_sr_optimal_portfolio} depends on a quadratic form
-of \vfact[i] with the upper right left corner of
-$\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}$.
-\end{lemma}%UNFOLD
-
-\begin{theorem}%FOLDUP
-\label{theorem:hej_cond_inv_distribution_II}
-Let $\svsm[{\sfact[]}] \defeq \oneby{\ssiz}\sum_i \ogram{\aavreti[i+1]}$,
-based on \ssiz \iid samples of \asvec{\fvola,\tr{\vfact[{}]},\tr{\vreti}},
-where 
-$$
-\aavreti[i+1] \defeq \asvec{\fvola[i]\tr{\vfact[i]},\fvola[i]\tr{\vreti[i+1]}}.
-$$
-Let \pvvar be the variance of $\fvech{\ogram{\aavreti}}$.
-Define 
-$\Delhej\minv{\pvsm[{\sfact[]}]}$ as in 
-\eqnref{cond_del_hej_def} for given
-$\wrapParens{\nfac+\nlatfhej}\times\wrapParens{\nlatf+\nfac}$ matrix \hejGt.
-
-Then, asymptotically in \ssiz, 
-\begin{equation}
-\sqrt{\ssiz}\wrapParens{\fvech{\Delhej\minv{\svsm[{\sfact[]}]}} -
-\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}} 
-\rightsquigarrow 
-\normlaw{0,\qoform{\pvvar}{\Mtx{H}}},
-\label{eqn:hej_cond_mvclt_isvsm_II}
-\end{equation}
-where
-\begin{equation*}
-\Mtx{H} = - \EXD{\wrapBracks{\AkronA{\minv{\pvsm[{\sfact[]}]}} - 
-\wrapParens{\AkronA{\tr{\hejGt}}}
-\wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm[{\sfact[]}]}{\hejGt}}}}}
-\wrapParens{\AkronA{\hejGt}}}}.
-\end{equation*}
-Furthermore, we may replace \pvvar in this equation with an asymptotically
-consistent estimator, \svvar.
-\end{theorem}%UNFOLD
-
-%UNFOLD
-\subsection{Conditional Expectation and Heteroskedasticity with Subspace and Hedging Constraint}%FOLDUP
-
-Finally, we can combine the subspace and hedging constraints with the 
-conditional model of
-\subsecref{cond_ret_het}. This extension is trivial only in the case
+\subsecref{cond_ret_het} with the subspace constraint of 
+\subsecref{subspace_constraint} and the
+hedging constraint of \subsecref{hedging_constraint}. 
+This extension is trivial only in the case
 where the rows of \hejG are spanned by the rows of \zerJ. So, for
 the remainder of this section, we will assume this is the case.
 The problem considered here is the most general case solved in this
@@ -2198,12 +2208,10 @@ for $\rfr \ge 0, \Rbuj > 0$ is solved by
 Moreover, this is the unique solution whenever $\rfr > 0$.
 \end{lemma}%UNFOLD
 The same cautions regarding multiperiod portfolio choice apply to the
-above lemma. Results analogous to those of \subsecref{hedging_constraint} 
-follow, but with one minor modification to the analogue of 
-\definitionref{delta_inv_second_moment}.
-
-To perform inference on the hedged Markowitz coefficient, we need to consider
-the difference of two projected second moment matrices.
+above lemma. The asymptotic distribution results that follow are minor
+modifications of those from previous sections.
+The `delta inverse second moment' now explicitly becomes the 
+difference of two projections:
 
 \begin{definition}[Delta Inverse Second Moment]%FOLDUP
 \label{definition:cond_delta_inv_second_moment}
@@ -2234,7 +2242,7 @@ Under %the definitions in
 %\begin{multline}
 %\Delzh\minv{\pvsm} =\\
 \begin{equation*}
-\Delzh\minv{\pvsm} =
+\Delzh\minv{\pvsm[{\sfact[]}]} =
 \twobytwo{ 
 \qform{\proj{\pvsig}{\zerJ}}{\pRegco} - \qform{\proj{\pvsig}{\hejG}}{\pRegco} }{
 -\tr{\pRegco}\proj{\pvsig}{\zerJ} + \tr{\pRegco}\proj{\pvsig}{\hejG}}{
@@ -2254,8 +2262,6 @@ of \vfact[i] with the upper left corner of
 ${\Delzh\minv{\pvsm[{\sfact[]}]}}$.
 %\end{note}
 
-
-
 \begin{theorem}%FOLDUP
 \label{theorem:zerhej_cond_inv_distribution_II}
 Let $\svsm[{\sfact[]}] \defeq \oneby{\ssiz}\sum_i \ogram{\aavreti[i+1]}$,
@@ -2266,15 +2272,15 @@ $$
 $$
 Let \pvvar be the variance of $\fvech{\ogram{\aavreti}}$.
 Define 
-$\Delhej\minv{\pvsm[{\sfact[]}]}$ as in 
+$\Delzh\minv{\pvsm[{\sfact[]}]}$ as in 
 \eqnref{cond_del_hej_def} for the given \zerJt and \hejGt.
 %$\wrapParens{\nfac+\nlatfzer}\times\wrapParens{\nlatf+\nfac}$ matrix \zerJt
 %and $\wrapParens{\nfac+\nlatfhej}\times\wrapParens{\nlatf+\nfac}$ matrix \hejGt.
 
 Then, asymptotically in \ssiz, 
 \begin{equation}
-\sqrt{\ssiz}\wrapParens{\fvech{\Delhej\minv{\svsm[{\sfact[]}]}} -
-\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}} 
+\sqrt{\ssiz}\wrapParens{\fvech{\Delzh\minv{\svsm[{\sfact[]}]}} -
+\fvech{\Delzh\minv{\pvsm[{\sfact[]}]}}} 
 \rightsquigarrow 
 \normlaw{0,\qoform{\pvvar}{\Mtx{H}}},
 \label{eqn:zerhej_cond_mvclt_isvsm_II}
@@ -2282,22 +2288,13 @@ Then, asymptotically in \ssiz,
 where
 \begin{equation*}
 \Mtx{H} = - \EXD{\wrapParens{\broj{\pvsm[{\sfact[]}]}{\zerJt} -
-\broj{\pvsm[{\sfact[]}]}{\hejGt}}},
+\broj{\pvsm[{\sfact[]}]}{\hejGt}}}.
 \end{equation*}
-where we define
-\begin{equation*}
-\broj{\pvsm}{\Mtx{A}} \defeq
-\wrapParens{\AkronA{\tr{\Mtx{A}}}}
-\wrapParens{\AkronA{\minv{\wrapParens{\qoform{\pvsm}{\Mtx{A}}}}}}
-\wrapParens{\AkronA{\Mtx{A}}}.
-\end{equation*}
-
-
 Furthermore, we may replace \pvvar in this equation with an asymptotically
 consistent estimator, \svvar.
 \end{theorem}%UNFOLD
-
 %UNFOLD
+
 %UNFOLD
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
