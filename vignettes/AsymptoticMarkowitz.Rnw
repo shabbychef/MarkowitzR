@@ -1989,7 +1989,7 @@ The matrix \minvAB{\pvsig}{\pRegco} is the generalization of the
 Markowitz portfolio: it is the multiplier for a model under which
 the optimal portfolio is linear in the features \vfact[i] (up to
 scaling to satisfy the risk budget). We can think of this matrix
-as the `Markowitz coefficient'. If an entire column of 
+as the `\txtMC'. If an entire column of 
 \minvAB{\pvsig}{\pRegco} is zero, it suggests that the 
 corresponding element of \vfact[{}] can be ignored in investment
 decisions; if an entire row of \minvAB{\pvsig}{\pRegco} is zero,
@@ -2002,7 +2002,7 @@ which tests the matrix equation
 $\Mtx{A}\pRegco\Mtx{C} = \Mtx{T}$, for conformable 
 $\Mtx{A},\Mtx{C},\Mtx{T}$.  \cite{Rencher2002,Muller1984143}
 
-To perform inference on the Markowitz coefficient, we can proceed
+To perform inference on the \txtMC, we can proceed
 exactly as above. Let
 \begin{equation}
 \aavreti[i+1] \defeq \asvec{\fvola[i]\tr{\vfact[i]},\fvola[i]\tr{\vreti[i+1]}}.
@@ -2023,7 +2023,7 @@ The inverse of \pvsm[{\sfact[]}] is
 \qiform{\pvsig}{\pRegco}}{-\tr{\pRegco}\minv{\pvsig}}{-\minv{\pvsig}\pRegco}{\minv{\pvsig}}
 \label{eqn:new_new_trick_inversion}
 \end{equation}
-Once again, the Markowitz coefficient (up to scaling and sign), appears in
+Once again, the \txtMC (up to scaling and sign), appears in
 \fvech{\minv{\pvsm[{\sfact[]}]}}.
 
 The following theorem is an analogue of, and shares a proof with,
@@ -2124,7 +2124,7 @@ consistent estimator, \svvar.
 %-\minv{\pvsig}\pRegco + \proj{\pvsig}{\hejG}\pRegco}{
 %\minv{\pvsig} - \proj{\pvsig}{\hejG}}.
 %\end{equation*}
-%In particular, the Markowitz coefficient from
+%In particular, the \txtMC from
 %\lemmaref{hej_cond_sr_optimal_portfolio} appears in the lower left
 %corner of 
 %$-\fvech{\Delhej\minv{\pvsm[{\sfact[]}]}}$, and the
@@ -2232,7 +2232,7 @@ Define the `delta inverse second moment' as
 where $\pvsm[{\sfact[]}]$ is defined in \eqnref{cond_pvsm_def}.
 \end{definition}%UNFOLD
 
-Once again, the delta inverse second moment contains the Markowitz coefficient,
+Once again, the delta inverse second moment contains the \txtMC,
 as in the following lemma.
 
 \begin{lemma}%FOLDUP
@@ -2252,7 +2252,7 @@ Under %the definitions in
 %\end{multline}
 \end{lemma}%UNFOLD
 %\begin{note}
-In particular, the Markowitz coefficient from
+In particular, the \txtMC from
 \lemmaref{zerhej_cond_sr_optimal_portfolio} appears in the lower left
 corner of 
 $-{\Delzh\minv{\pvsm[{\sfact[]}]}}$, and the
