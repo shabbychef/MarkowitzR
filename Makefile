@@ -538,6 +538,7 @@ mactex :
 # git push origin dev1311
 
 suggestions : 
+	@-echo 'make docs'
 	@-echo 'sleep `jot -r 1 2 57` && git commit -a -m "working on package"'
 	@-echo "git push origin $(GIT_BRANCH)"
 

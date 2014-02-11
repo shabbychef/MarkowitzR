@@ -93,6 +93,9 @@ via the \code{\link{vcov}} function, or via a 'fancy'
 estimator, like \code{sandwich:vcovHAC},
 \code{sandwich:vcovHC}, \emph{etc.}
 }
+\note{
+Should also modify to include the theta estimates.
+}
 \examples{
 set.seed(1001)
 X <- matrix(rnorm(1000*3),ncol=3)

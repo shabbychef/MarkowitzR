@@ -434,7 +434,7 @@ do.all <- function(rets,...) {
 	rownames(retval) <- c("Britten Jones t-stat","via itheta_vcov","via mp_vcov")
 	return(retval)
 }
-n.day <- 2000
+n.day <- 800
 n.stock <- 5
 @
 
@@ -475,6 +475,43 @@ set.seed(as.integer(charToRaw("464dcbea-375b-49d0-8f38-b48b5a33c7ea")))
 rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
 print(wrap.itheta(rets,ret.what='mp'))
 @
+
+%\subsubsection{Inference on SNR}
+
+%<<'inf_snr',echo=TRUE>>=
+%inf.snr <- function(rets,R,r0=1e-4,...) {
+	%set.coln(rets)
+	%asymv <- mp_vcov(as.matrix(rets),...)
+	%est.sr2 <- asymv$mu[1] - 1
+	%c.term <- - r0 / (R * est.sr2)
+	%# how sloppy; this is terrible in terms of recomputation.
+	%est.mu <- colMeans(rets)
+	%v.term <- c.term * c(0.5,est.mu)
+	%dim(v.term) <- c(length(v.term),1)
+	%qidx <- 1:(asymv$p+1)
+	%a.var <- t(v.term) %*% (asymv$Ohat[qidx,qidx] %*% v.term)
+	%mp <- t(asymv$W)
+	%list(mp=mp,a.var=a.var)
+%}
+%check.snr <- function(rets,true.mu,true.Sg,R,r0=1e-4,...) {
+	%true.mp <- solve(true.Sg,true.mu)
+	%psi.star <- sqrt(t(true.mp) %*% true.mu)
+	%true.max <- psi.star - r0/R
+	%asymv <- inf.snr(rets,R=R,r0=r0,...)
+	%mp <- asymv$mp
+	%ach.snr <- (t(mp) %*% true.mu) / sqrt(t(mp) %*% (true.Sg %*% mp))
+	%err.snr <- ach.snr - true.max
+	%as.Z <- err.snr / sqrt(asymv$a.var)
+%}
+%gen.and.check <- function(n.day,n.stock,true.mu,true.Sg,R,r0=1e-4,
+  %genf=rnorm,...) {
+	%rets <- matrix(genf(n.day * n.stock),nrow=n.day)
+	%rets <- rets %*% chol(true.Sg)
+	%rets <- rets + t(matrix(true.mu,nrow=n.stock,ncol=n.day))
+	%as.Z <- check.snr(rets,true.mu,true.Sg,R,r0,...)
+%}
+%# 2FIX: now use em...
+%@
 
 \subsubsection{Conditional expectations}%FOLDUP
 
@@ -565,7 +602,7 @@ The portfolio and Wald statistics are computed as follows:
 # first for the case where the real Markowitz Portfolio is actually
 # just 'the market': equal dollar long in each stock.
 set.seed(as.integer(charToRaw("dbeebe3f-da7e-4d11-b014-feac88a1d6cb")))
-rets <- matrix(rnorm(n.day * n.stock,mean=5e-1),nrow=n.day)
+rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
 Jmat <- matrix(c(1,1,1,-1),nrow=2,ncol=2*n.stock)  # overbuilt
 Jmat <- Jmat[,1:n.stock]  # fixed.
 print(Jmat)
@@ -579,7 +616,7 @@ print(wrap.mp(rets,ret.what='mp',Jmat=Jmat))
 # now for the case where the real Markowitz portfolio is not just the market.
 set.seed(as.integer(charToRaw("420f1dfd-b19b-4175-83b3-b96548264bf8")))
 rets <- matrix(rnorm(n.day * n.stock,mean=0),nrow=n.day)
-mu.off <- t(matrix(seq(from=-0.8,to=0.8,length.out=n.stock),nrow=n.stock,ncol=n.day))
+mu.off <- t(matrix(seq(from=-0.15,to=0.15,length.out=n.stock),nrow=n.stock,ncol=n.day))
 rets <- rets + mu.off
 Gmat <- matrix(1,nrow=1,ncol=n.stock)
 print(wrap.mp(rets,Jmat=Jmat))
@@ -614,6 +651,9 @@ print(wrap.mp(rets,Gmat=Gmat))
 # and print the portfolio too:
 print(wrap.mp(rets,ret.what='mp',Gmat=Gmat))
 @
+
+Portfolio hedging also 
+\cite{rao1952,
 
 %UNFOLD
 %UNFOLD
@@ -665,16 +705,16 @@ The Wald statistics are slightly less optimistic than the
 Britten-Jones t-statistics for the long MKT and short SMB
 positions. This is amplified when the HAC estimator is used.
 
-I now compute a rolling estimate of volatility by taking the
-11 month FIR mean of the median absolute return of the three portfolios,
-delayed by one month. 
-%I then use the `constant' model of
-%\eqnref{cond_model_I}, \ie I apply the unconditional technique to
-%returns scaled by the quietude.
-I then assume a model of `constant maximal \txtSR,'
-where both \fvola[i] and \vfact[i] are the inverse 
-of this estimated volatility. We can simply apply the unconditional
-technique to returns divided by this estimated volatility.
+%I now compute a rolling estimate of volatility by taking the
+%11 month FIR mean of the median absolute return of the three portfolios,
+%delayed by one month. 
+%%I then use the `constant' model of
+%%\eqnref{cond_model_I}, \ie I apply the unconditional technique to
+%%returns scaled by the quietude.
+%I then assume a model of `constant maximal \txtSR,'
+%where both \fvola[i] and \vfact[i] are the inverse 
+%of this estimated volatility. We can simply apply the unconditional
+%technique to returns divided by this estimated volatility.
 
 %<<'ff_data_arch',echo=TRUE,cache=FALSE>>=
 %# conditional heteroskedasticity

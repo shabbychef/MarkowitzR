@@ -104,6 +104,10 @@
 #' @template etc
 #' @template ref-SEP13
 #'
+#' @note
+#'
+#' Should also modify to include the theta estimates.
+#'
 #' @examples 
 # unconditional returns
 #' set.seed(1001)
