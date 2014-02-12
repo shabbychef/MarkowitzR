@@ -428,13 +428,20 @@ bjones.ts <- function(rets) {
 	return(retval)
 }
 # compare the procedures
-do.all <- function(rets,...) {
+do.both <- function(rets,...) {
 	set.coln(rets)
-	retval <- rbind(bjones.ts(rets),wrap.itheta(rets,...),wrap.mp(rets,...))
-	rownames(retval) <- c("Britten Jones t-stat","via itheta_vcov","via mp_vcov")
+	retval <- rbind(bjones.ts(rets),wrap.itheta(rets,...))
+	rownames(retval) <- c("Britten Jones t-stat","via itheta_vcov")
 	return(retval)
 }
-n.day <- 800
+do.all <- function(rets,...) {
+	set.coln(rets)
+	retval <- do.both(rets,...)
+	retval <- rbind(retval,wrap.mp(rets,...))
+	rownames(retval)[dim(retval)[1]] <- "via mp_vcov"
+	return(retval)
+}
+n.day <- 1000
 n.stock <- 5
 @
 
@@ -513,6 +520,51 @@ print(wrap.itheta(rets,ret.what='mp'))
 %# 2FIX: now use em...
 %@
 
+\subsubsection{Covariance with the precision matrix}%FOLDUP
+
+Since this estimation procedure computes the covariance jointly of the 
+\txtMP and the precision matrix, we can estimate the amount of error
+in the \txtMP which is attributable to mis-estimation of the covariance.
+The remainder we can attribute to mis-estimation of the mean vector, which,
+is typically implicated as the leading effect. \cite{chopra1993effect}
+Here, for each of the \Sexpr{n.stock} members of the \txtMP, 
+I estimate the squared coefficient of multiple correlation, 
+expressed as percents.
+
+<<'multiple_correlation',echo=TRUE,cache=FALSE>>=
+# multiple correlation coefficients of portfolio
+# error to precision errors.
+mult.cor <- function(rets,...) {
+	set.coln(rets)
+	# 'flipping the sign on returns is idiomatic'
+	asymv <- itheta_vcov(- as.matrix(rets),...)
+	Ro <- cov2cor(asymv$Ohat)
+	prec.idx <- (asymv$p+1):(dim(asymv$Ohat)[1])
+	prec.Ro <- Ro[prec.idx,prec.idx]
+	xcor <- Ro[2:asymv$p,prec.idx]
+	R.sq <- diag(xcor %*% (solve(prec.Ro,t(xcor))))
+}
+set.seed(as.integer(charToRaw("464dcbea-375b-49d0-8f38-b48b5a33c7ea")))
+rets <- matrix(rnorm(n.day * n.stock,mean=8e-2),nrow=n.day)
+print(signif(100 * mult.cor(rets),digits=2))
+@
+
+Thus, in the case, misestimation of the covariance matrix is contributing
+around \Sexpr{signif(median(100 * mult.cor(rets)),digits=1)} percent of the
+error in the elements of the \txtMP. The remainder we attribute to
+misestimation of the mean vector.
+Note that when the population maximal \txtSR is larger, the \emph{proportion} 
+of error in the \txtMP attributed to misestimation of the precision matrix
+increases, even though the total error in the elements of the \txtMP is 
+decreasing:
+
+<<'multiple_correlation2',echo=TRUE,cache=FALSE>>=
+set.seed(as.integer(charToRaw("464dcbea-375b-49d0-8f38-b48b5a33c7ea")))
+rets <- matrix(rnorm(n.day * n.stock,mean=1.6e-1),nrow=n.day)
+print(signif(100 * mult.cor(rets),digits=2))
+@
+
+%UNFOLD
 \subsubsection{Conditional expectations}%FOLDUP
 
 Now consider the model where the mean return is conditional
@@ -653,7 +705,11 @@ print(wrap.mp(rets,ret.what='mp',Gmat=Gmat))
 
 The hedging code also computes the Rao-Giri statistic for
 portfolio spanning \cite{rao1952,giri1964likelihood,HKspan1987,KanZhou2012},
-with a variance estimate of the same, as below:
+with a variance estimate of the same, as below. In this example, the
+true \txtMP is $0.1\vone$. Thus when we hedge out $\vone$ in the first
+example, the population value of the maximal \txtSR is zero. In the
+second example, when we hedge out a random vector, the population
+maximal \txtSR is non-zero.
 
 <<'rao_giri',echo=TRUE,eval=TRUE>>=
 rao.giri <- function(rets,Gmat,...) {
@@ -663,12 +719,23 @@ rao.giri <- function(rets,Gmat,...) {
 	a.var <- asymv$Ohat[1,1]
 	return(list(stat=stat,a.var=a.var,wald=stat/sqrt(a.var)))
 }
+# here we hedge out G, the rows of which span the true
+# Markowitz portfolio
 set.seed(as.integer(charToRaw("4618fc2e-9c58-4ea7-81f7-6ed771ace500")))
 rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
 Gmat <- matrix(1,nrow=1,ncol=n.stock)
-print(rao.giri(rets,Gmat))
+print(rao.giri(rets,Gmat)$wald)
+
+# here we hedge out a random G, the rows of which do not
+# span the true Markowitz portfolio
+set.seed(as.integer(charToRaw("4abaccd9-8cac-4149-b30d-f3b4d32b44df")))
+rets <- matrix(rnorm(n.day * n.stock,mean=1e-1),nrow=n.day)
+Gmat <- matrix(rnorm(n.stock),nrow=1,ncol=n.stock)
+print(rao.giri(rets,Gmat)$wald)
 @
 %UNFOLD
+
+
 %UNFOLD
 
 \subsection{Fama French three portfolios}%FOLDUP
@@ -707,10 +774,10 @@ ff.ret <- cbind(ff.data[,'Mkt.RF'],
 	ff.data[,c('HML','SMB')] - rep(rfr,2))
 colnames(ff.ret)[1] <- "MKT"
 # try both procedures:
-print(do.all(ff.ret))
+print(do.both(ff.ret))
 # try with robust s.e.
 if (require(sandwich)) {
-	print(do.all(ff.ret,vcov.func=sandwich::vcovHAC))
+	print(do.both(ff.ret,vcov.func=sandwich::vcovHAC))
 }
 @
 

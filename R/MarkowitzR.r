@@ -64,6 +64,8 @@
 #' Econometrics 1 (2009): 269--336. 
 #' \url{http://shr.receptidocs.ru/docs/5/4748/conv_1/file1.pdf#page=298}
 #'
+#' @import matrixcalc sandwich gtools
+#'
 #' @name MarkowitzR
 #' @rdname MarkowitzR
 #' @docType package
@@ -79,9 +81,9 @@ NULL
 #' \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\MarkowitzR}{\CRANpkg{MarkowitzR}}
 #'
-#' @section \MarkowitzR{} Initial Version 0.1402 (2014-02-02) :
+#' @section \MarkowitzR{} Initial Version 0.1402 (2014-02-14) :
 #' \itemize{
-#' \item put on CRAN
+#' \item first CRAN release.
 #' }
 #'
 #' @name MarkowitzR-NEWS

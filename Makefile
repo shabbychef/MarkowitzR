@@ -47,6 +47,7 @@ RCHECK_SENTINEL 	 = $(RCHECK)/$(PKG_NAME)/DESCRIPTION
 # If no alternate bin folder is specified, the default is to use the folder
 # containing the first instance of R on the PATH.
 RBIN 							?= $(shell dirname "`which R`")
+R_LIBS_SITE 			?= /usr/local/lib/R/site-library:/usr/lib/R/site-library::/usr/lib/R/library
 R         				 = $(RBIN)/R
 RSCRIPT   				 = $(RBIN)/Rscript
 #R_FLAGS 					?= --vanilla --verbose -q
@@ -55,7 +56,7 @@ R_FLAGS 					?= -q --no-save --no-restore --no-init-file
 
 # packages I need to test this one
 TEST_DEPS  				 = testthat roxygen2 knitr TTR MASS \
-										 sandwich xtable matrixcalc 
+										 sandwich xtable matrixcalc gtools SharpeR
 INSTALLED_DEPS 		 = $(patsubst %,$(LOCAL)/%/DESCRIPTION,$(TEST_DEPS)) 
 PKG_TESTR 				 = tests/run-all.R
 
@@ -154,7 +155,7 @@ BASE_DEF_PACKAGES   = "utils,graphics,grDevices,methods,stats,$(PKG_NAME)"
 #########################################################################
 
 # install locally
-INSTALLPKG = $(RLOCAL) -e "install.packages('$(1)', repos = 'http://cran.cnr.Berkeley.edu')" 
+INSTALLPKG = $(R_LOCALLY) -e "install.packages('$(1)', repos = 'http://cran.cnr.Berkeley.edu')" 
 	
 # make a directory
 MKDIR = mkdir -p $(1)
@@ -207,7 +208,10 @@ help:
 	@echo "  check      Make build, then R CMD check the package as CRAN."
 	@echo "  gitpush    Yes, I am lazy"
 	@echo ""
-	@echo "Using R in: $(RBIN)"
+	@echo "Using: "
+	@echo "         RBIN: $(RBIN) "
+	@echo "            R: $(R) "
+	@echo "  R_LIBS_SITE: $(R_LIBS_SITE) "
 	@echo "Set the RBIN environment variable to change this."
 	@echo ""
 
@@ -515,6 +519,7 @@ tag :
 submit : .cran_upload .send_email
 
 subadvice :
+	@-echo -e "make docs && make build && make check"
 	@-echo -e "upload $(PKG_TGZ) to cran.r-project.org/incoming via anonymous ftp"
 	@-echo -e "then email CRAN@R-project.org w/ subject 'CRAN submission $(PKG_NAME) $(VERSION)'"
 
