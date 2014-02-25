@@ -9,7 +9,7 @@ before_install:
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
   - ./travis-tool.sh install_devtools
-  - ./travis-tool.sh r_install matrixcalc gtools sandwich
+  - ./travis-tool.sh r_install knitr matrixcalc gtools sandwich
 install:
   - ./travis-tool.sh install_deps
 notifications:
