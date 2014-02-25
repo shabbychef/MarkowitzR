@@ -3,6 +3,8 @@
 
 # MarkowitzR
 
+[![Build Status](https://travis-ci.org/shabbychef/MarkowitzR.png)](https://travis-ci.org/shabbychef/MarkowitzR)
+
 A number of utilities for dealing with the Markowitz portfolio.
 
 -- Steven E. Pav, shabbychef@gmail.com

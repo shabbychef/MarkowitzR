@@ -33,6 +33,8 @@ opts_chunk$set(tidy=TRUE,tidy.opts=list(width.cutoff=50,keep.blank.line=TRUE))
 
 # MarkowitzR
 
+[![Build Status](https://travis-ci.org/shabbychef/MarkowitzR.png)](https://travis-ci.org/shabbychef/MarkowitzR)
+
 A number of utilities for dealing with the Markowitz portfolio.
 
 -- Steven E. Pav, shabbychef@gmail.com
