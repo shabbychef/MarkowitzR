@@ -19,3 +19,4 @@ MarkowitzR.Rcheck
 ^github_extra
 unit_test.log
 LICENSE
+^\.travis\.yml$

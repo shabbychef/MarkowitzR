@@ -29,7 +29,7 @@ GS_QUALITY 				?= 'ebook'
 
 M4_FILES					?= $(wildcard m4/*.m4)
 
-VERSION 					 = 0.1402
+VERSION 					 = 0.1403
 TODAY 						:= $(shell date +%Y-%m-%d)
 
 PKG_NAME 					:= MarkowitzR
