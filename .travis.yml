@@ -18,8 +18,8 @@ notifications:
     on_failure: change
 env:
   - global:
-    - R_BUILD_ARGS="--compact-vignettes --md5"
-    - R_CHECK_ARGS="--as-cran"
+    - R_BUILD_ARGS='--compact-vignettes --md5'
+    - R_CHECK_ARGS='--as-cran'
     - WARNINGS_ARE_ERRORS=0
     - _R_CHECK_FORCE_SUGGESTS_=0
     - BOOTSTRAP_LATEX=1
