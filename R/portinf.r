@@ -168,8 +168,8 @@ mp_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 	ff <- f + as.numeric(fit.intercept)
 
 	twidlize <- function(M) { 
-		rbind(cbind(diag(ff),matrix(0,nrow=1,ncol=dim(M)[2])),
-					cbind(0,M)) 
+		rbind(cbind(diag(ff),matrix(0,nrow=ff,ncol=dim(M)[2])),
+					cbind(matrix(0,nrow=dim(M)[1],ncol=ff),M)) 
 	}
 
 	if (!is.null(Jmat)) 
