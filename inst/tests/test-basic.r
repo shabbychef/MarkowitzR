@@ -45,10 +45,20 @@ test_that("mp_vcov runs",{#FOLDUP
 	ope <- 253
 	for (nyr in c(2,4)) {
 		nday <- ceiling(ope * nyr)
-		for (nstock in c(2,4)) {
+		for (nstock in c(4,6)) {
 			X <- matrix(rnorm(nday * nstock),ncol=nstock)
-			asym <- MarkowitzR::mp_vcov(X,fit.intercept=TRUE)
-			expect_true(TRUE)
+			expect_that(asym <- MarkowitzR::mp_vcov(X,fit.intercept=TRUE),
+									not(throws_error()))
+			for (psiz in c(1,2)) {
+				Amat <- matrix(rnorm(1 * nstock),ncol=nstock)
+				expect_that(asym <- MarkowitzR::mp_vcov(X,Jmat=Amat,
+																								fit.intercept=TRUE),
+										not(throws_error()))
+				expect_that(asym <- MarkowitzR::mp_vcov(X,Gmat=Amat,
+																								fit.intercept=TRUE),
+										not(throws_error()))
+
+			}
 		}
 	}
 })#UNFOLD
@@ -57,3 +67,4 @@ test_that("mp_vcov runs",{#FOLDUP
 
 #for vim modeline: (do not edit)
 # vim:ts=2:sw=2:tw=79:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:syn=r:ft=r:ai:si:cin:nu:fo=croql:cino=p0t0c5(0:
+
