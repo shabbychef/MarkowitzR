@@ -146,13 +146,20 @@ PREBIB       = BSTINPUTS=$(TEXINPADD):$$BSTINPUTS \
 BIBTEX      := $(shell which bibtex)
 LATEX       := $(shell which latex)
 
-BASE_DEF_PACKAGES   = "utils,graphics,grDevices,methods,stats,$(PKG_NAME)"
+BASE_DEF_PACKAGES   = utils,graphics,grDevices,methods,stats,$(PKG_NAME)
 
 #FAST_
 
 #########################################################################
 # MACROS
 #########################################################################
+
+# macro for local R
+R_LOCALLY  						= R_LIBS=$(LOCAL) $(R) $(R_FLAGS)
+R_TIME_LOCALLY  			= R_LIBS=$(LOCAL) $(BIN_TIME) --verbose $(R) $(R_FLAGS)
+
+# and global
+R_EXEC  							= $(R) $(R_FLAGS)
 
 # install locally
 INSTALLPKG = $(R_LOCALLY) -e "install.packages('$(1)', repos = 'http://cran.cnr.Berkeley.edu')" 
@@ -232,7 +239,7 @@ tags: .R_tags
 
 # if you use emacs (shudder)
 TAGS: 
-	$(R) --slave CMD rtags
+	$(R_EXEC) CMD rtags
 
 % : m4/%.m4 Makefile
 	m4 -I ./m4 -DVERSION=$(VERSION) -DDATE=$(TODAY) -DPKG_NAME=$(PKG_NAME) $< > $@
@@ -242,7 +249,7 @@ TAGS:
 	$(call MKDIR,$(EXTDATA_D))
 	R_LIBS=$(LOCAL) R_PROFILE=load.R \
 				 R_DEFAULT_PACKAGES="$(BASE_DEF_PACKAGES),knitr,quantmod" \
-				 $(R) $(R_FLAGS) --slave -e \
+				 $(R_EXEC) -e \
 				 "setwd(dirname('$@'));knitr::knit(basename('$<'));"
 
 cached_data : $(PREMAKE_RDA)
@@ -250,10 +257,6 @@ cached_data : $(PREMAKE_RDA)
 README.md : $(NODIST_R_DIR)/README.md
 	mv $< $@
 	rsync -av --delete $(NODIST_R_DIR)/github_extra/ ./github_extra/
-
-# macro for local R
-R_LOCALLY  						= R_LIBS=$(LOCAL) $(R) $(R_FLAGS)
-R_TIME_LOCALLY  			= R_LIBS=$(LOCAL) $(BIN_TIME) --verbose $(R) $(R_FLAGS)
 
 # make directories
 local_d :
@@ -276,7 +279,7 @@ deps: $(INSTALLED_DEPS)
 # roxygen it.
 man/$(PKG_NAME).Rd NAMESPACE: $(R_FILES)
 	$(call WARN_DEPS)
-	$(R_LOCALLY) --slave -e "require(roxygen2); roxygenize('.', '.', overwrite=TRUE, unlink.target=TRUE)"
+	$(R_LOCALLY) -e "require(roxygen2); roxygenize('.', clean=TRUE)"
 	touch $@
 
 docs: README.md DESCRIPTION man/$(PKG_NAME).Rd 
@@ -309,7 +312,7 @@ staged : $(STAGED_PKG)/DESCRIPTION
 $(PKG_TGZ) : $(STAGED_PKG)/DESCRIPTION $(INSTALLED_DEPS) $(EXTRA_PKG_DEPS) 
 	$(call WARN_DEPS)
 	# check values
-	@$(BUILD_ENV) $(R_LOCALLY) --slave -e 'print(Sys.getenv("R_QPDF"));print(Sys.getenv("R_GSCMD"));print(Sys.getenv("GS_QUALITY"));'
+	@$(BUILD_ENV) $(R_LOCALLY) -e 'print(Sys.getenv("R_QPDF"));print(Sys.getenv("R_GSCMD"));print(Sys.getenv("GS_QUALITY"));'
 	$(BUILD_ENV) $(R_LOCALLY) CMD build $(BUILD_FLAGS) $(<D)
 
 #package : $(PKG_TGZ)
@@ -351,14 +354,13 @@ checksee : $(RCHECK_SENTINEL)
 # UNIT TESTING
 ################################
 
-#$(R_LOCALLY) --slave -e "if (require(testthat) && require($(PKG_NAME))) testthat::test_dir('./inst/tests')" | tee $@
+#$(R_LOCALLY) -e "if (require(testthat) && require($(PKG_NAME))) testthat::test_dir('./inst/tests')" | tee $@
 
 # 2FIX:
 unit_test.log : $(LOCAL)/$(PKG_NAME)/INDEX $(LOCAL)/testthat/DESCRIPTION $(PKG_TESTR)
 	$(call WARN_DEPS)
 	R_LIBS=$(LOCAL) R_PROFILE=load.R \
-				 R_DEFAULT_PACKAGES=$(BASE_DEF_PACKAGES) $(R) $(R_FLAGS) \
-				 --slave < $(PKG_TESTR) | tee $@
+				 R_DEFAULT_PACKAGES=$(BASE_DEF_PACKAGES) $(R_EXEC) < $(PKG_TESTR) | tee $@
 
 testthat : unit_test.log
 
@@ -376,7 +378,7 @@ cheapR :
 $(PKG_NAME).pdf: $(VIGNETTE_SRCS) deps $(LOCAL)/$(PKG_NAME)/INDEX 
 	$(PRETEX) R_LIBS=$(LOCAL) R_PROFILE=load.R \
 				 R_DEFAULT_PACKAGES="$(BASE_DEF_PACKAGES),knitr,TTR" \
-				 $(R) $(R_FLAGS) --slave -e "knitr::knit2pdf('$<');"
+				 $(R_EXEC) -e "knitr::knit2pdf('$<');"
 	if grep Citation $(PKG_NAME).log > /dev/null; then $(PREBIB) $(BIBTEX) $(PKG_NAME); \
 		$(PRETEX) "$(R)" CMD pdflatex $(PKG_NAME).tex; fi
 	if grep Rerun $(PKG_NAME).log > /dev/null; then $(PRETEX) "$(R)" CMD pdflatex $(PKG_NAME).tex; fi
@@ -384,7 +386,7 @@ $(PKG_NAME).pdf: $(VIGNETTE_SRCS) deps $(LOCAL)/$(PKG_NAME)/INDEX
 $(PKG_NAME)_fast.pdf : $(VIGNETTE_SRCS) 
 	$(PRETEX) R_LIBS=$(LOCAL) R_PROFILE=load.R \
 				 R_DEFAULT_PACKAGES="$(BASE_DEF_PACKAGES),knitr,TTR" \
-				 $(R) $(R_FLAGS) --slave -e "knitr::knit2pdf('$<');"
+				 $(R_EXEC) -e "knitr::knit2pdf('$<');"
 	if grep Citation $(PKG_NAME).log > /dev/null; then $(PREBIB) $(BIBTEX) $(PKG_NAME); \
 		$(PRETEX) "$(R)" CMD pdflatex $(PKG_NAME).tex; fi
 	if grep Rerun $(PKG_NAME).log > /dev/null; then $(PRETEX) "$(R)" CMD pdflatex $(PKG_NAME).tex; fi
@@ -400,7 +402,7 @@ $(VIGNETTE_CACHE_SENTINEL) : $(VIGNETTE_SRCS) $(LOCAL)/$(PKG_NAME)/INDEX
 	$(PRETEX) R_LIBS=$(LOCAL) R_PROFILE=load.R \
 				 R_DEFAULT_PACKAGES="$(BASE_DEF_PACKAGES),knitr,TTR" \
 				 FORCE_RECOMPUTE='TRUE' \
-				 $(R) $(R_FLAGS) --slave -e "setwd('$(VIGNETTE_D)');knitr::knit(basename('$<'));"
+				 $(R_EXEC) -e "setwd('$(VIGNETTE_D)');knitr::knit(basename('$<'));"
 	touch $@
 
 vignette_cache : $(VIGNETTE_CACHE_SENTINEL)
@@ -410,7 +412,7 @@ vignette_cache : $(VIGNETTE_CACHE_SENTINEL)
 	$(PRETEX) R_LIBS=$(LOCAL) R_PROFILE=load.R \
 				 R_DEFAULT_PACKAGES="$(BASE_DEF_PACKAGES),knitr,TTR" \
 				 FORCE_RECOMPUTE='TRUE' \
-				 $(R) $(R_FLAGS) --slave -e "setwd('$(VIGNETTE_D)');knitr::knit(basename('$<'));"
+				 $(R_EXEC) -e "setwd('$(VIGNETTE_D)');knitr::knit(basename('$<'));"
 
 %.dvi : %.tex 
 		$(PRETEX) $(LATEX) $<
@@ -432,7 +434,7 @@ $(EXTDATA_D)/%.rda : $(NODIST_R_DIR)/make_%.R
 	$(call MKDIR,$(EXTDATA_D))
 	R_LIBS=$(LOCAL) R_PROFILE=load.R \
 				 R_DEFAULT_PACKAGES="$(BASE_DEF_PACKAGES),knitr,quantmod" \
-				 $(R) $(R_FLAGS) --slave -e \
+				 $(R_EXEC) -e \
 				 "setwd('$(NODIST_R_DIR)');source(basename('$<'));"
 	# horribly hacky!
 	mv $(NODIST_R_DIR)/*.rda $(EXTDATA_D)
@@ -442,7 +444,7 @@ $(VIGNETTE_D)/rauto.bib : $(NODIST_R_DIR)/gen_bib.R
 	$(call MKDIR,$(EXTDATA_D))
 	R_LIBS=$(LOCAL) R_PROFILE=load.R \
 				 R_DEFAULT_PACKAGES="$(BASE_DEF_PACKAGES),knitr,quantmod" \
-				 $(R) $(R_FLAGS) --slave -e \
+				 $(R_EXEC) -e \
 				 "setwd('$(NODIST_R_DIR)');source(basename('$<'));"
 	# horribly hacky!
 	mv $(NODIST_R_DIR)/*.bib $@
@@ -527,7 +529,7 @@ subadvice :
 #cd $(VIGNETTE_D);\
 #$(R) CMD Sweave $(PKG_NAME).Rnw;\
 #texi2dvi --pdf $(PKG_NAME).tex;\
-#$(R) --vanilla --slave -e "tools:::compactPDF(getwd(), gs_quality='printer')"
+#$(R_EXEC) --vanilla -e "tools:::compactPDF(getwd(), gs_quality='printer')"
 
 mactex : 
 	sudo port install -v \
