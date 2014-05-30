@@ -32,3 +32,4 @@ MarkowitzR.log
 *.bbl
 *.blg
 cache/
+nodist/README.md
