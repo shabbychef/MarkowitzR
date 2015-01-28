@@ -81,6 +81,11 @@ NULL
 #' \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\MarkowitzR}{\CRANpkg{MarkowitzR}}
 #'
+#' @section Changes in \MarkowitzR{} Version 0.1502 (2015-01-26) :
+#' \itemize{
+#' \item conform to CRAN rules.
+#' }
+#'
 #' @section Changes in \MarkowitzR{} Version 0.1403 (2014-06-01) :
 #' \itemize{
 #' \item fix bug preventing multi-row hedging or constraint matrices.

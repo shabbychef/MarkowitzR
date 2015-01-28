@@ -23,7 +23,7 @@ Suggests:
     SharpeR,
     testthat, 
     knitr
-URL: http://www.r-project.org, https://github.com/shabbychef/MarkowitzR
+URL: https://github.com/shabbychef/MarkowitzR
 VignetteBuilder: knitr
 Collate:
 m4_R_FILES()
