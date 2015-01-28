@@ -62,7 +62,7 @@
 #'
 #' Brandt, Michael W. "Portfolio Choice Problems." Handbook of Financial
 #' Econometrics 1 (2009): 269--336. 
-#' \url{http://shr.receptidocs.ru/docs/5/4748/conv_1/file1.pdf#page=298}
+#' \url{https://faculty.fuqua.duke.edu/~mbrandt/papers/published/portreview.pdf}
 #'
 #' @import matrixcalc sandwich gtools
 #'
