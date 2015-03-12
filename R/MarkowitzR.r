@@ -72,6 +72,7 @@
 #' @title statistics concerning the Markowitz portfolio
 #' @keywords package
 #' 
+#' @note 
 #' This package is maintained as a hobby. 
 #'
 NULL
