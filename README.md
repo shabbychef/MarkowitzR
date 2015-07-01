@@ -3,6 +3,8 @@
 # MarkowitzR
 
 [![Build Status](https://travis-ci.org/shabbychef/MarkowitzR.png)](https://travis-ci.org/shabbychef/MarkowitzR)
+[![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/MarkowitzR?branch=master)
+![](http://cranlogs-dev.r-pkg.org/badges/MarkowitzR)
 
 A number of utilities for dealing with the Markowitz portfolio.
 
@@ -144,7 +146,7 @@ qqnorm(Zerr)
 qqline(Zerr, col = 2)
 ```
 
-![plot of chunk marko_ism](github_extra/figure/marko_ism.png) 
+![plot of chunk marko_ism](github_extra/figure/marko_ism-1.png) 
 
 ### Fama French data
 
@@ -155,17 +157,60 @@ Now load the Fama French 3 factor portfolios.
 ff.data <- read.csv(paste0("http://www.quandl.com/api/v1/datasets/", 
     "KFRENCH/FACTORS_M.csv?&trim_start=1926-07-31&trim_end=2013-10-31", 
     "&sort_order=asc"), colClasses = c(Month = "Date"))
+```
 
+```
+## Error in file(file, "rt"): cannot open the connection
+```
+
+```r
 rownames(ff.data) <- ff.data$Month
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'ff.data' not found
+```
+
+```r
 ff.data <- ff.data[, !(colnames(ff.data) %in% c("Month"))]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'ff.data' not found
+```
+
+```r
 # will not matter, but convert pcts:
 ff.data <- 0.01 * ff.data
+```
 
+```
+## Error in eval(expr, envir, enclos): object 'ff.data' not found
+```
+
+```r
 rfr <- ff.data[, "RF"]
+```
 
+```
+## Error in eval(expr, envir, enclos): object 'ff.data' not found
+```
+
+```r
 ff.ret <- cbind(ff.data[, "Mkt.RF"], ff.data[, c("HML", 
     "SMB")] - rep(rfr, 2))
+```
+
+```
+## Error in cbind(ff.data[, "Mkt.RF"], ff.data[, c("HML", "SMB")] - rep(rfr, : object 'ff.data' not found
+```
+
+```r
 colnames(ff.ret)[1] <- "MKT"
+```
+
+```
+## Error in colnames(ff.ret)[1] <- "MKT": object 'ff.ret' not found
 ```
 
 Now analyze the Markowitz portfolio on them.
@@ -173,13 +218,32 @@ Now analyze the Markowitz portfolio on them.
 
 ```r
 ism <- mp_vcov(ff.ret, fit.intercept = TRUE)
+```
+
+```
+## Error in is.data.frame(x): object 'ff.ret' not found
+```
+
+```r
 walds <- ism$W/sqrt(diag(ism$What))
 print(t(walds))
 ```
 
 ```
-##           MKT  HML  SMB
-## Intercept 3.9 0.26 -1.9
+##             X1    X2     X3     X4    X5    X6      X7    X8
+## Intercept -1.2  -0.6   0.97   0.23   1.3   1.3  -0.013  0.25
+## Feat1     -3.5  10.6 -13.34   7.37  21.8  -6.8 -19.378  4.56
+## Feat2      5.3   1.4   0.40  11.63 -16.4  -2.0  -3.579  5.90
+## Feat3     -7.4   2.7  10.32  -6.84   8.5   7.8  10.760 21.87
+## Feat4      6.0  -6.5 -16.10 -26.24  -9.6   3.2  -5.797 25.10
+## Feat5     -7.0 -13.0   4.77 -19.08   9.2 -14.7  -5.520 -3.19
+##               X9   X10    X11    X12   X13   X14    X15
+## Intercept   0.66  -1.4  -1.30   0.38   2.5  0.17   0.14
+## Feat1       8.21  27.7   6.12  -7.14  -3.4 -2.69  20.13
+## Feat2     -16.96 -24.4 -14.66 -20.66 -13.5 18.66  -7.49
+## Feat3     -25.38 -13.4  -0.86   3.04   9.7  9.32 -24.31
+## Feat4      -0.62  17.6  13.21  -9.49 -14.8  7.27  -4.44
+## Feat5      25.94  18.7   0.12 -15.91   5.1  6.10  21.83
 ```
 
 ```r
@@ -187,12 +251,31 @@ print(t(walds))
 # covariance with the market:
 Gmat <- matrix(c(1, 0, 0), nrow = 1)
 ism <- mp_vcov(ff.ret, fit.intercept = TRUE, Gmat = Gmat)
+```
+
+```
+## Error in is.data.frame(x): object 'ff.ret' not found
+```
+
+```r
 walds <- ism$W/sqrt(diag(ism$What))
 print(t(walds))
 ```
 
 ```
-##           MKT  HML  SMB
-## Intercept 1.6 0.26 -1.9
+##             X1    X2     X3     X4    X5    X6      X7    X8
+## Intercept -1.2  -0.6   0.97   0.23   1.3   1.3  -0.013  0.25
+## Feat1     -3.5  10.6 -13.34   7.37  21.8  -6.8 -19.378  4.56
+## Feat2      5.3   1.4   0.40  11.63 -16.4  -2.0  -3.579  5.90
+## Feat3     -7.4   2.7  10.32  -6.84   8.5   7.8  10.760 21.87
+## Feat4      6.0  -6.5 -16.10 -26.24  -9.6   3.2  -5.797 25.10
+## Feat5     -7.0 -13.0   4.77 -19.08   9.2 -14.7  -5.520 -3.19
+##               X9   X10    X11    X12   X13   X14    X15
+## Intercept   0.66  -1.4  -1.30   0.38   2.5  0.17   0.14
+## Feat1       8.21  27.7   6.12  -7.14  -3.4 -2.69  20.13
+## Feat2     -16.96 -24.4 -14.66 -20.66 -13.5 18.66  -7.49
+## Feat3     -25.38 -13.4  -0.86   3.04   9.7  9.32 -24.31
+## Feat4      -0.62  17.6  13.21  -9.49 -14.8  7.27  -4.44
+## Feat5      25.94  18.7   0.12 -15.91   5.1  6.10  21.83
 ```
 
