@@ -135,18 +135,17 @@ qqline(Zerr,col=2)
 Now load the Fama French 3 factor portfolios.
 
 ```{r ff_load,cache=TRUE,eval=TRUE,echo=TRUE}
-ff.data <- read.csv(paste0('http://www.quandl.com/api/v1/datasets/',
-'KFRENCH/FACTORS_M.csv?&trim_start=1926-07-31&trim_end=2013-10-31',
-'&sort_order=asc'), colClasses=c('Month'='Date'))
+library(Quandl)
+ff.data <- Quandl("KFRENCH/FACTORS_M",
+	start_date="1926-07-31",end_date="2014-12-31",
+	type="xts")
 
-rownames(ff.data) <- ff.data$Month
-ff.data <- ff.data[,! (colnames(ff.data) %in% c("Month"))]
 # will not matter, but convert pcts:
 ff.data <- 1e-2 * ff.data
 
 rfr <- ff.data[,'RF']
 
-ff.ret <- cbind(ff.data[,'Mkt.RF'],
+ff.ret <- cbind(ff.data[,'Mkt-RF'],
 	ff.data[,c('HML','SMB')] - rep(rfr,2))
 colnames(ff.ret)[1] <- "MKT"
 ```
