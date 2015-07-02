@@ -153,6 +153,8 @@
 mp_vcov <- function(X,feat=NULL,vcov.func=vcov,fit.intercept=TRUE,
 											 weights=NULL,Jmat=NULL,Gmat=NULL) {
 	set.coln(X)
+	if (is.null(vcov.func))  # belt and suspenders defaults
+		vcov.func=vcov
 
 	if (!is.null(feat)) {
 		set.coln(feat)

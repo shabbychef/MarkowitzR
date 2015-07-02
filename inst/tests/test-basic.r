@@ -41,25 +41,78 @@ test_that("mp_vcov runs",{#FOLDUP
 	ngen <- ceiling(THOROUGHNESS * 32)
 	alpha.floor = 0.001 + 0.003 * (THOROUGHNESS / (1 + THOROUGHNESS))
 
+	vcvs <- list(NULL,vcov,"normal")
+	if (require(sandwich))
+		vcvs <- c(vcvs,sandwich::vcovHAC)
+
 	set.char.seed("0b144107-4de8-4e00-95f7-d746db3aef8e")
 	ope <- 253
-	for (nyr in c(2,4)) {
-		nday <- ceiling(ope * nyr)
-		for (nstock in c(4,6)) {
-			X <- matrix(rnorm(nday * nstock),ncol=nstock)
-			expect_that(asym <- MarkowitzR::mp_vcov(X,fit.intercept=TRUE),
-									not(throws_error()))
-			for (psiz in c(1,2)) {
-				Amat <- matrix(rnorm(1 * nstock),ncol=nstock)
-				expect_that(asym <- MarkowitzR::mp_vcov(X,Jmat=Amat,
-																								fit.intercept=TRUE),
-										not(throws_error()))
-				expect_that(asym <- MarkowitzR::mp_vcov(X,Gmat=Amat,
-																								fit.intercept=TRUE),
-										not(throws_error()))
+	for (vvv in seq_len(length(vcvs))) {
+		vfunc <- vcvs[[vvv]]
+		for (nyr in c(1,2)) {#FOLDUP
+			nday <- ceiling(ope * nyr)
+			for (nstock in c(3,5)) {
+				X <- matrix(rnorm(nday * nstock),ncol=nstock)
 
+				for (nfeat in c(0,2)) {
+					if (nfeat < 1) {
+						Feat <- NULL   # unconditional case
+					} else {
+						Feat <- matrix(rnorm(nday * nfeat),ncol=nfeat)  # conditioanl returns
+					}
+
+					# unweighted estimation#FOLDUP
+					expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,fit.intercept=TRUE),
+											not(throws_error()))
+
+					for (psiz in c(1,2)) {
+						Amat <- matrix(rnorm(1 * nstock),ncol=nstock)
+						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Jmat=Amat,
+																										fit.intercept=TRUE),
+												not(throws_error()))
+						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Gmat=Amat,
+																										fit.intercept=TRUE),
+												not(throws_error()))
+					}
+					#UNFOLD
+					# weighted estimation#FOLDUP
+					weights <- 1 + runif(nday)
+					expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,weights=weights,fit.intercept=TRUE),
+											not(throws_error()))
+
+					for (psiz in c(1,2)) {
+						Amat <- matrix(rnorm(1 * nstock),ncol=nstock)
+						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Jmat=Amat,
+																										weights=weights,fit.intercept=TRUE),
+												not(throws_error()))
+						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Gmat=Amat,
+																										weights=weights,fit.intercept=TRUE),
+												not(throws_error()))
+					}
+					#UNFOLD
+				}
 			}
-		}
+		}#UNFOLD
+	}
+})#UNFOLD
+test_that("itheta_vcov runs",{#FOLDUP
+	vcvs <- list(vcov)
+	if (require(sandwich))
+		vcvs <- c(vcvs,sandwich::vcovHAC)
+
+	set.char.seed("6f0cd49e-c5e1-4f81-8266-a558c9ccf823")
+	ope <- 253
+	for (vvv in seq_len(length(vcvs))) {
+		vfunc <- vcvs[[vvv]]
+		for (nyr in c(1,2)) {#FOLDUP
+			nday <- ceiling(ope * nyr)
+			for (nstock in c(2,4)) {
+				X <- matrix(rnorm(nday * nstock),ncol=nstock)
+
+				expect_that(asym <- MarkowitzR::itheta_vcov(X,vcov.func=vfunc,fit.intercept=TRUE),
+										not(throws_error()))
+			}
+		}#UNFOLD
 	}
 })#UNFOLD
 
