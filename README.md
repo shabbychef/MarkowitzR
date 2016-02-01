@@ -4,7 +4,8 @@
 
 [![Build Status](https://travis-ci.org/shabbychef/MarkowitzR.png)](https://travis-ci.org/shabbychef/MarkowitzR)
 [![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/MarkowitzR?branch=master)
-![](http://cranlogs-dev.r-pkg.org/badges/MarkowitzR)
+[![CRAN](http://www.r-pkg.org/badges/version/MarkowitzR)](http://cran.rstudio.com/package=MarkowitzR) 
+[![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=brightgreen)](http://www.r-pkg.org/pkg/MarkowitzR)
 
 A number of utilities for dealing with the Markowitz portfolio.
 
@@ -142,11 +143,18 @@ print(summary(Zerr))
 ```
 
 ```r
-qqnorm(Zerr)
-qqline(Zerr, col = 2)
+library(ggplot2)
+ph <- ggplot(data.frame(Ze = Zerr), aes(sample = Ze)) + 
+    stat_qq() + geom_abline(slope = 1, intercept = 0, 
+    colour = "red")
+print(ph)
 ```
 
-![plot of chunk marko_ism](github_extra/figure/marko_ism-1.png) 
+<img src="github_extra/figure/marko_ism-1.png" title="plot of chunk marko_ism" alt="plot of chunk marko_ism" width="600px" height="500px" />
+
+```r
+# qqnorm(Zerr) qqline(Zerr,col=2)
+```
 
 ### Fama French data
 
@@ -179,7 +187,7 @@ print(t(walds))
 
 ```
 ##           MKT  HML SMB
-## Intercept   4 0.23  -2
+## Intercept   4 0.22  -2
 ```
 
 ```r
@@ -193,6 +201,6 @@ print(t(walds))
 
 ```
 ##           MKT  HML SMB
-## Intercept 1.7 0.23  -2
+## Intercept 1.7 0.22  -2
 ```
 

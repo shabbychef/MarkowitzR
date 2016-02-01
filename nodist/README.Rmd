@@ -35,7 +35,8 @@ opts_chunk$set(tidy=TRUE,tidy.opts=list(width.cutoff=50,keep.blank.line=TRUE))
 
 [![Build Status](https://travis-ci.org/shabbychef/MarkowitzR.png)](https://travis-ci.org/shabbychef/MarkowitzR)
 [![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/MarkowitzR?branch=master)
-![](http://cranlogs-dev.r-pkg.org/badges/MarkowitzR)
+[![CRAN](http://www.r-pkg.org/badges/version/MarkowitzR)](http://cran.rstudio.com/package=MarkowitzR) 
+[![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=brightgreen)](http://www.r-pkg.org/pkg/MarkowitzR)
 
 A number of utilities for dealing with the Markowitz portfolio.
 
@@ -79,7 +80,7 @@ print(t(walds))
 
 Now for conditional expectation:
 
-```{r marko_ism,cache=FALSE,eval=TRUE,echo=TRUE}
+```{r marko_ism,cache=TRUE,eval=TRUE,echo=TRUE,dpi=200,out.width='600px',out.height='500px'}
 # generate data with given W, Sigma
 Xgen <- function(W,Sigma,Feat) {
  Btrue <- Sigma %*% W
@@ -126,8 +127,11 @@ errs <- ism$W - Wcomp
 dim(errs) <- c(length(errs),1)
 Zerr <- solve(t(chol(ism$What)),errs)
 print(summary(Zerr))
-qqnorm(Zerr)
-qqline(Zerr,col=2)
+library(ggplot2)
+ph <- ggplot(data.frame(Ze=Zerr),aes(sample=Ze)) + stat_qq() + geom_abline(slope=1,intercept=0,colour='red')
+print(ph)
+#qqnorm(Zerr)
+#qqline(Zerr,col=2)
 ```
 
 ### Fama French data
