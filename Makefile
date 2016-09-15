@@ -30,9 +30,9 @@ GS_QUALITY 				?= 'ebook'
 M4_FILES					?= $(wildcard m4/*.m4)
 
 VMAJOR 						 = 0
-VMINOR 						 = 9000
+VMINOR 						 = 9900
 VPATCH  					 = 0
-VDEV 							 = .1000
+VDEV 							 = .100
 #VERSION 					 = 0.1502.9001
 VERSION 					 = $(VMAJOR).$(VMINOR).$(VPATCH)$(VDEV)
 TODAY 						:= $(shell date +%Y-%m-%d)

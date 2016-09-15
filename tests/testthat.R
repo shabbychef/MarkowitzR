@@ -33,4 +33,7 @@
 library(testthat)
 library(MarkowitzR)
 
-test_package("MarkowitzR")
+test_check("MarkowitzR")
+
+#for vim modeline: (do not edit)
+# vim:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:syn=r:ft=r

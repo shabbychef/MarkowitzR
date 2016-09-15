@@ -35,8 +35,11 @@ opts_chunk$set(tidy=TRUE,tidy.opts=list(width.cutoff=50,keep.blank.line=TRUE))
 
 [![Build Status](https://travis-ci.org/shabbychef/MarkowitzR.png)](https://travis-ci.org/shabbychef/MarkowitzR)
 [![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/MarkowitzR?branch=master)
-[![CRAN](http://www.r-pkg.org/badges/version/MarkowitzR)](http://cran.rstudio.com/package=MarkowitzR) 
-[![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=brightgreen)](http://www.r-pkg.org/pkg/MarkowitzR)
+[![CRAN](http://www.r-pkg.org/badges/version/MarkowitzR)](https://cran.r-project.org/package=MarkowitzR)
+[![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=green)](http://www.r-pkg.org/pkg/MarkowitzR)
+[![Total](http://cranlogs.r-pkg.org/badges/grand-total/MarkowitzR?color=green)](http://www.r-pkg.org/pkg/MarkowitzR)
+
+
 
 A number of utilities for dealing with the Markowitz portfolio.
 

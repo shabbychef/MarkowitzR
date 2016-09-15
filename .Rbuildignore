@@ -5,6 +5,7 @@
 .R_tags
 .staging
 .tags
+.codecov_token
 aux$
 log$
 out$
