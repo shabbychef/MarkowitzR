@@ -11,7 +11,7 @@ Date: DATE()
 License: LGPL-3
 Title: Statistical Significance of the Markowitz Portfolio
 BugReports: https://github.com/shabbychef/MarkowitzR/issues
-Description: a collection of tools for analyzing significance of 
+Description: A collection of tools for analyzing significance of 
     Markowitz portfolios.
 Depends: 
     R (>= 3.0.2)
