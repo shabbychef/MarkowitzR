@@ -153,7 +153,7 @@ ph <- ggplot(data.frame(Ze = Zerr), aes(sample = Ze)) +
 print(ph)
 ```
 
-<img src="github_extra/figure/marko_ism-1.png" title="plot of chunk marko_ism" alt="plot of chunk marko_ism" width="600px" height="500px" />
+<img src="tools/figure/marko_ism-1.png" title="plot of chunk marko_ism" alt="plot of chunk marko_ism" width="600px" height="500px" />
 
 ```r
 # qqnorm(Zerr) qqline(Zerr,col=2)
