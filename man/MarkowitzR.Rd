@@ -45,7 +45,7 @@ Pav, S. E. "Asymptotic Distribution of the Markowitz Portfolio."
 2013 \url{http://arxiv.org/abs/1312.0557}
 
 Pav, S. E. "Portfolio Inference with this One Weird Trick."
-R in Finance, 2014 \url{http://www.rinfinance.com/agenda/2014/talk/StevenPav.pdf}
+R in Finance, 2014 \url{http://past.rinfinance.com/agenda/2014/talk/StevenPav.pdf}
 
 Britten-Jones, Mark. "The Sampling Error in Estimates of Mean-Variance 
 Efficient Portfolio Weights." The Journal of Finance 54, no. 2 (1999):

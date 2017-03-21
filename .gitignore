@@ -1,5 +1,6 @@
 # for testing, ignore these
 
+
 # dev stuff
 .tags
 .R_tags
@@ -8,6 +9,7 @@
 
 # local build check and whatnot
 *.tar.gz
+*.crancheck
 .local/
 .staging/
 *.Rcheck
@@ -26,6 +28,8 @@ token
 #NAMESPACE
 #DESCRIPTION
 #man/
+
+.docker_img
 
 # generated as part of the 'local' vignette build
 MarkowitzR.tex

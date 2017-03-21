@@ -2,8 +2,8 @@ Package: MarkowitzR
 Maintainer: Steven E. Pav <shabbychef@gmail.com>
 Authors@R: c(person(c("Steven", "E."), "Pav", role=c("aut","cre"),
     email="shabbychef@gmail.com"))
-Version: 0.9900.0
-Date: 2016-09-15
+Version: 0.9900.0.1000
+Date: 2017-03-20
 License: LGPL-3
 Title: Statistical Significance of the Markowitz Portfolio
 BugReports: https://github.com/shabbychef/MarkowitzR/issues
