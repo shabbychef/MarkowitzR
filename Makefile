@@ -7,10 +7,11 @@
 
 ############### FLAGS ###############
 
-VMAJOR 						 = 0
-VMINOR 						 = 9900
-VPATCH  					 = 0
-VDEV 							 = .1000
+VMAJOR 						 = 1
+VMINOR 						 = 0
+VPATCH  					 = 1
+#VDEV 							 = .1000
+VDEV 							 = 
 PKG_NAME 					:= MarkowitzR
 
 undefine RPKG_USES_RCPP

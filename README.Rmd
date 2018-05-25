@@ -12,7 +12,7 @@ opts_chunk$set(cache=TRUE,cache.path="cache/")
 #opts_chunk$set(fig.path="github_extra/figure/",dev=c("pdf","cairo_ps"))
 #opts_chunk$set(fig.path="github_extra/figure/",dev=c("png","pdf"))
 #opts_chunk$set(fig.path="github_extra/figure/",dev=c("png"))
-opts_chunk$set(fig.path="tools/figure/",dev=c("png"))
+opts_chunk$set(fig.path="man/figures/",dev=c("png"))
 opts_chunk$set(fig.width=5,fig.height=4,dpi=64)
 
 # doing this means that png files are made of figures;
@@ -30,6 +30,7 @@ opts_chunk$set(size="small")
 opts_chunk$set(tidy=TRUE,tidy.opts=list(width.cutoff=50,keep.blank.line=TRUE))
 
 #MarkowitzR.meta <- packageDescription('MarkowitzR')
+library(MarkowitzR)
 ```
 
 # MarkowitzR
@@ -84,7 +85,7 @@ print(t(walds))
 
 Now for conditional expectation:
 
-```{r marko_ism,cache=TRUE,eval=TRUE,echo=TRUE,dpi=200,out.width='600px',out.height='500px'}
+```{r marko-ism,cache=TRUE,eval=TRUE,echo=TRUE,dpi=200,out.width='600px',out.height='500px'}
 # generate data with given W, Sigma
 Xgen <- function(W,Sigma,Feat) {
  Btrue <- Sigma %*% W
@@ -107,7 +108,7 @@ ism <- mp_vcov(X,feat=Feat,fit.intercept=TRUE)
 walds <- ism$W / sqrt(diag(ism$What))
 print(t(walds))
 # results are not much changed when using robust s.e.
-require(sandwich)
+library(sandwich)
 
 ism.rse <- mp_vcov(X,feat=Feat,vcov.func=sandwich::vcovHAC,fit.intercept=TRUE)
 walds.rse <- ism.rse$W / sqrt(diag(ism.rse$What))
@@ -143,19 +144,22 @@ print(ph)
 Now load the Fama French 3 factor portfolios.
 
 ```{r ff_load,cache=TRUE,eval=TRUE,echo=TRUE}
-library(Quandl)
-ff.data <- Quandl("KFRENCH/FACTORS_M",
-	start_date="1926-07-31",end_date="2014-12-31",
-	type="xts")
+if (!require(aqfb.data,quietly=TRUE) && require(devtools)) {
+  # get the 10 industry data
+  devtools::install_github('shabbychef/aqfb_data')
+}
+library(aqfb.data)
+# fama 
+data(mff4)
 
 # will not matter, but convert pcts:
-ff.data <- 1e-2 * ff.data
+ff.data <- 1e-2 * mff4 
 
+# risk free rate:
 rfr <- ff.data[,'RF']
 
-ff.ret <- cbind(ff.data[,'Mkt-RF'],
-	ff.data[,c('HML','SMB')] - rep(rfr,2))
-colnames(ff.ret)[1] <- "MKT"
+# subtract risk free from Mkt, HML and SMB:
+ff.ret <- ff.data[,c('Mkt','HML','SMB')] - rep(rfr,2)
 ```
 
 Now analyze the Markowitz portfolio on them.

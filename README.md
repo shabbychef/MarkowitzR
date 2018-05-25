@@ -97,7 +97,7 @@ print(t(walds))
 ```r
 # results are not much changed when using robust
 # s.e.
-require(sandwich)
+library(sandwich)
 
 ism.rse <- mp_vcov(X, feat = Feat, vcov.func = sandwich::vcovHAC, 
     fit.intercept = TRUE)
@@ -153,7 +153,7 @@ ph <- ggplot(data.frame(Ze = Zerr), aes(sample = Ze)) +
 print(ph)
 ```
 
-<img src="tools/figure/marko_ism-1.png" title="plot of chunk marko_ism" alt="plot of chunk marko_ism" width="600px" height="500px" />
+<img src="man/figures/marko-ism-1.png" title="plot of chunk marko-ism" alt="plot of chunk marko-ism" width="600px" height="500px" />
 
 ```r
 # qqnorm(Zerr) qqline(Zerr,col=2)
@@ -165,18 +165,23 @@ Now load the Fama French 3 factor portfolios.
 
 
 ```r
-library(Quandl)
-ff.data <- Quandl("KFRENCH/FACTORS_M", start_date = "1926-07-31", 
-    end_date = "2014-12-31", type = "xts")
+if (!require(aqfb.data, quietly = TRUE) && require(devtools)) {
+    # get the 10 industry data
+    devtools::install_github("shabbychef/aqfb_data")
+}
+library(aqfb.data)
+# fama
+data(mff4)
 
 # will not matter, but convert pcts:
-ff.data <- 0.01 * ff.data
+ff.data <- 0.01 * mff4
 
+# risk free rate:
 rfr <- ff.data[, "RF"]
 
-ff.ret <- cbind(ff.data[, "Mkt-RF"], ff.data[, c("HML", 
-    "SMB")] - rep(rfr, 2))
-colnames(ff.ret)[1] <- "MKT"
+# subtract risk free from Mkt, HML and SMB:
+ff.ret <- ff.data[, c("Mkt", "HML", "SMB")] - rep(rfr, 
+    2)
 ```
 
 Now analyze the Markowitz portfolio on them.
@@ -189,8 +194,8 @@ print(t(walds))
 ```
 
 ```
-##           MKT  HML SMB
-## Intercept   4 0.22  -2
+##           Mkt  HML SMB
+## Intercept   4 0.32  -2
 ```
 
 ```r
@@ -203,7 +208,7 @@ print(t(walds))
 ```
 
 ```
-##           MKT  HML SMB
-## Intercept 1.7 0.22  -2
+##           Mkt  HML SMB
+## Intercept 1.5 0.32  -2
 ```
 

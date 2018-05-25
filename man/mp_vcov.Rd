@@ -129,9 +129,6 @@ dim(errs) <- c(length(errs),1)
 Zerr <- solve(t(chol(ism$What)),errs)
 
 }
-\author{
-Steven E. Pav \email{shabbychef@gmail.com}
-}
 \references{
 Pav, S. E. "Asymptotic Distribution of the Markowitz Portfolio."
 2013 \url{http://arxiv.org/abs/1312.0557}
@@ -142,5 +139,7 @@ R in Finance, 2014 \url{http://past.rinfinance.com/agenda/2014/talk/StevenPav.pd
 \seealso{
 \code{\link{theta_vcov}}, \code{\link{itheta_vcov}}
 }
+\author{
+Steven E. Pav \email{shabbychef@gmail.com}
+}
 \keyword{univar}
-

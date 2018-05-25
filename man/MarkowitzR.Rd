@@ -37,9 +37,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 }
-\author{
-Steven E. Pav \email{shabbychef@gmail.com}
-}
+
 \references{
 Pav, S. E. "Asymptotic Distribution of the Markowitz Portfolio."
 2013 \url{http://arxiv.org/abs/1312.0557}
@@ -63,5 +61,7 @@ Brandt, Michael W. "Portfolio Choice Problems." Handbook of Financial
 Econometrics 1 (2009): 269--336. 
 \url{https://faculty.fuqua.duke.edu/~mbrandt/papers/published/portreview.pdf}
 }
+\author{
+Steven E. Pav \email{shabbychef@gmail.com}
+}
 \keyword{package}
-
