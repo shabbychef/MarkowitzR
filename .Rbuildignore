@@ -27,3 +27,4 @@ LICENSE
 ^.check_tmp
 rpkg_make
 rpkg_make
+doit.sh
