@@ -85,7 +85,7 @@
 #' # make it fat tailed:
 #' X <- matrix(rt(1000*3,df=5),ncol=3)
 #' Sigmas <- theta_vcov(X)
-#' \dontrun{
+#' \donttest{
 #' if (require(sandwich)) {
 #'  Sigmas <- theta_vcov(X,vcov.func=vcovHC)
 #' }
@@ -94,7 +94,7 @@
 #' Xf <- filter(X,c(0.2),"recursive")
 #' colnames(Xf) <- colnames(X)
 #' Sigmas <- theta_vcov(Xf)
-#' \dontrun{
+#' \donttest{
 #' if (require(sandwich)) {
 #'	Sigmas <- theta_vcov(Xf,vcov.func=vcovHAC)
 #' }
@@ -231,7 +231,7 @@ theta_vcov <- function(X,vcov.func=vcov,fit.intercept=TRUE) {
 #' ism <- itheta_vcov(X)
 #' qidx <- 2:ism$pp
 #' wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
-#' \dontrun{
+#' \donttest{
 #' if (require(sandwich)) {
 #'  ism <- itheta_vcov(X,vcov.func=vcovHC)
 #'  qidx <- 2:ism$pp
@@ -244,7 +244,7 @@ theta_vcov <- function(X,vcov.func=vcov,fit.intercept=TRUE) {
 #' ism <- itheta_vcov(Xf)
 #' qidx <- 2:ism$pp
 #' wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
-#' \dontrun{
+#' \donttest{
 #' if (require(sandwich)) {
 #'	ism <- itheta_vcov(Xf,vcov.func=vcovHAC)
 #'  qidx <- 2:ism$pp

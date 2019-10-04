@@ -10,8 +10,7 @@
 VMAJOR 						 = 1
 VMINOR 						 = 0
 VPATCH  					 = 1
-#VDEV 							 = .1000
-VDEV 							 = 
+VDEV 							 = .0001
 PKG_NAME 					:= MarkowitzR
 
 undefine RPKG_USES_RCPP
