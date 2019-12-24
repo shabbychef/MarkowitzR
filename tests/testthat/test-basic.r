@@ -62,32 +62,29 @@ test_that("mp_vcov runs",{#FOLDUP
 					}
 
 					# unweighted estimation#FOLDUP
-					expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,fit.intercept=TRUE),
-											not(throws_error()))
+					expect_error(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,fit.intercept=TRUE),NA)
 
 					for (psiz in c(1,2)) {
 						Amat <- matrix(rnorm(1 * nstock),ncol=nstock)
-						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Jmat=Amat,
-																										fit.intercept=TRUE),
-												not(throws_error()))
-						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Gmat=Amat,
-																										fit.intercept=TRUE),
-												not(throws_error()))
+						expect_error(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Jmat=Amat,
+																										fit.intercept=TRUE),NA)
+						expect_error(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Gmat=Amat,
+																										fit.intercept=TRUE),NA)
 					}
 					#UNFOLD
 					# weighted estimation#FOLDUP
 					weights <- 1 + runif(nday)
-					expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,weights=weights,fit.intercept=TRUE),
-											not(throws_error()))
+					expect_error(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,weights=weights,fit.intercept=TRUE),
+											 NA)
 
 					for (psiz in c(1,2)) {
 						Amat <- matrix(rnorm(1 * nstock),ncol=nstock)
-						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Jmat=Amat,
+						expect_error(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Jmat=Amat,
 																										weights=weights,fit.intercept=TRUE),
-												not(throws_error()))
-						expect_that(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Gmat=Amat,
+												 NA)
+						expect_error(asym <- MarkowitzR::mp_vcov(X,feat=Feat,vcov.func=vfunc,Gmat=Amat,
 																										weights=weights,fit.intercept=TRUE),
-												not(throws_error()))
+												 NA)
 					}
 					#UNFOLD
 				}
@@ -109,8 +106,8 @@ test_that("itheta_vcov runs",{#FOLDUP
 			for (nstock in c(2,4)) {
 				X <- matrix(rnorm(nday * nstock),ncol=nstock)
 
-				expect_that(asym <- MarkowitzR::itheta_vcov(X,vcov.func=vfunc,fit.intercept=TRUE),
-										not(throws_error()))
+				expect_error(asym <- MarkowitzR::itheta_vcov(X,vcov.func=vfunc,fit.intercept=TRUE),
+										 NA)
 			}
 		}#UNFOLD
 	}
