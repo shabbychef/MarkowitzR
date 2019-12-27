@@ -57,7 +57,7 @@ Sigmas.n <- theta_vcov(X,fit.intercept=FALSE)
 # make it fat tailed:
 X <- matrix(rt(1000*3,df=5),ncol=3)
 Sigmas <- theta_vcov(X)
-\dontrun{
+\donttest{
 if (require(sandwich)) {
  Sigmas <- theta_vcov(X,vcov.func=vcovHC)
 }
@@ -66,7 +66,7 @@ if (require(sandwich)) {
 Xf <- filter(X,c(0.2),"recursive")
 colnames(Xf) <- colnames(X)
 Sigmas <- theta_vcov(Xf)
-\dontrun{
+\donttest{
 if (require(sandwich)) {
 Sigmas <- theta_vcov(Xf,vcov.func=vcovHAC)
 }

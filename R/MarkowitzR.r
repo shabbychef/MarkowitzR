@@ -1,4 +1,4 @@
-# Copyright 2014-2014 Steven E. Pav. All Rights Reserved.
+# Copyright 2014-2020 Steven E. Pav. All Rights Reserved.
 # Author: Steven E. Pav
 #
 # This file is part of MarkowitzR.
@@ -88,6 +88,11 @@ NULL
 #'
 #' \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 #' \newcommand{\MarkowitzR}{\CRANpkg{MarkowitzR}}
+#'
+#' @section Changes in \MarkowitzR{} Version 1.0.2 (2019-12-27) :
+#' \itemize{
+#' \item emergency fix for broken tests under atlas on CRAN.
+#' }
 #'
 #' @section Changes in \MarkowitzR{} Version 1.0.1 (2018-05-25) :
 #' \itemize{

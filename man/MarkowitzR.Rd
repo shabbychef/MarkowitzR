@@ -3,7 +3,6 @@
 \docType{package}
 \name{MarkowitzR}
 \alias{MarkowitzR}
-\alias{MarkowitzR-package}
 \title{statistics concerning the Markowitz portfolio}
 \description{
 Inference on the Markowitz portfolio.

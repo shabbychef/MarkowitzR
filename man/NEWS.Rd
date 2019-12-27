@@ -9,6 +9,13 @@ News for package \sQuote{MarkowitzR}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\MarkowitzR}{\CRANpkg{MarkowitzR}}
 }
+\section{Changes in \MarkowitzR{} Version 1.0.2 (2019-12-27) }{
+
+\itemize{
+\item emergency fix for broken tests under atlas on CRAN.
+}
+}
+
 \section{Changes in \MarkowitzR{} Version 1.0.1 (2018-05-25) }{
 
 \itemize{

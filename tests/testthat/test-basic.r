@@ -1,4 +1,4 @@
-# Copyright 2014 Steven E. Pav. All Rights Reserved.
+# Copyright 2014-2020 Steven E. Pav. All Rights Reserved.
 # Author: Steven E. Pav
 
 # This file is part of MarkowitzR.
@@ -23,7 +23,7 @@
 # changelog: 
 #
 # Created: 2014.05.19
-# Copyright: Steven E. Pav, 2014-2014
+# Copyright: Steven E. Pav, 2014-2020
 # Author: Steven E. Pav
 # Comments: Steven E. Pav
 

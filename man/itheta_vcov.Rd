@@ -76,7 +76,7 @@ X <- matrix(rt(1000*3,df=5),ncol=3)
 ism <- itheta_vcov(X)
 qidx <- 2:ism$pp
 wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
-\dontrun{
+\donttest{
 if (require(sandwich)) {
  ism <- itheta_vcov(X,vcov.func=vcovHC)
  qidx <- 2:ism$pp
@@ -89,7 +89,7 @@ colnames(Xf) <- colnames(X)
 ism <- itheta_vcov(Xf)
 qidx <- 2:ism$pp
 wald.stats <- ism$mu[qidx] / sqrt(diag(ism$Ohat[qidx,qidx]))
-\dontrun{
+\donttest{
 if (require(sandwich)) {
 ism <- itheta_vcov(Xf,vcov.func=vcovHAC)
  qidx <- 2:ism$pp
