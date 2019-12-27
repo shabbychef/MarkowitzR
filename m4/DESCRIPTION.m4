@@ -17,9 +17,9 @@ Depends:
     R (>= 3.0.2)
 Imports:
     matrixcalc,
-    sandwich,
     gtools
 Suggests: 
+    sandwich,
     SharpeR,
     testthat, 
     knitr

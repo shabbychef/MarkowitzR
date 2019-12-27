@@ -64,7 +64,7 @@
 #' Econometrics 1 (2009): 269--336. 
 #' \url{https://faculty.fuqua.duke.edu/~mbrandt/papers/published/portreview.pdf}
 #'
-#' @import matrixcalc sandwich gtools
+#' @import matrixcalc gtools
 #' @importFrom stats lm
 #' @importFrom stats na.omit
 #' @importFrom stats vcov
