@@ -46,7 +46,7 @@ R in Finance, 2014 \url{http://past.rinfinance.com/agenda/2014/talk/StevenPav.pd
 
 Britten-Jones, Mark. "The Sampling Error in Estimates of Mean-Variance 
 Efficient Portfolio Weights." The Journal of Finance 54, no. 2 (1999):
-655--671. \url{http://www.jstor.org/stable/2697722}
+655--671. \url{https://www.jstor.org/stable/2697722}
 
 Bodnar, Taras and Okhrin, Yarema. "On the Product of Inverse Wishart
 and Normal Distributions with Applications to Discriminant Analysis 
@@ -54,7 +54,7 @@ and Portfolio Theory." Scandinavian Journal of Statistics 38, no. 2 (2011):
 311--331. \url{http://dx.doi.org/10.1111/j.1467-9469.2011.00729.x}
 
 Markowitz, Harry. "Portfolio Selection." The Journal of Finance 7, no. 1
-(1952): 77--91. \url{http://www.jstor.org/stable/2975974}
+(1952): 77--91. \url{https://www.jstor.org/stable/2975974}
 
 Brandt, Michael W. "Portfolio Choice Problems." Handbook of Financial
 Econometrics 1 (2009): 269--336. 
