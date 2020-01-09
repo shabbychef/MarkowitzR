@@ -12,7 +12,8 @@ License: LGPL-3
 Title: Statistical Significance of the Markowitz Portfolio
 BugReports: https://github.com/shabbychef/MarkowitzR/issues
 Description: A collection of tools for analyzing significance of 
-    Markowitz portfolios.
+    Markowitz portfolios, using the delta method on the second moment
+    matrix, <arxiv:1312.0557>.
 Depends: 
     R (>= 3.0.2)
 Imports:
@@ -27,4 +28,4 @@ URL: https://github.com/shabbychef/MarkowitzR
 VignetteBuilder: knitr
 Collate:
 m4_R_FILES()
-dnl vim:ts=2:sw=2:tw=79:syn=m4:ft=m4
+dnl vim:ts=2:sw=2:tw=79:syn=m4:ft=m4:et

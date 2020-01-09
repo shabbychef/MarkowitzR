@@ -2,13 +2,14 @@ Package: MarkowitzR
 Maintainer: Steven E. Pav <shabbychef@gmail.com>
 Authors@R: c(person(c("Steven", "E."), "Pav", role=c("aut","cre"),
     email="shabbychef@gmail.com"))
-Version: 1.0.2
-Date: 2019-12-27
+Version: 1.0.2.0001
+Date: 2020-01-08
 License: LGPL-3
 Title: Statistical Significance of the Markowitz Portfolio
 BugReports: https://github.com/shabbychef/MarkowitzR/issues
 Description: A collection of tools for analyzing significance of 
-    Markowitz portfolios.
+    Markowitz portfolios, using the delta method on the second moment
+    matrix, <arxiv:1312.0557>.
 Depends: 
     R (>= 3.0.2)
 Imports:
@@ -26,4 +27,3 @@ Collate:
     'portinf.r'
     'utils.r'
     'vcov.r'
-RoxygenNote: 7.0.0
