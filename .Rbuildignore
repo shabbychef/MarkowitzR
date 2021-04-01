@@ -28,3 +28,4 @@ LICENSE
 rpkg_make
 rpkg_make
 doit.sh
+^\.github$

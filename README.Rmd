@@ -35,7 +35,7 @@ library(MarkowitzR)
 
 # MarkowitzR
 
-[![Build Status](https://travis-ci.org/shabbychef/MarkowitzR.png)](https://travis-ci.org/shabbychef/MarkowitzR)
+[![Build Status](https://github.com/shabbychef/MarkowitzR/workflows/R-CMD-check/badge.svg)](https://github.com/shabbychef/MarkowitzR/actions)
 [![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/MarkowitzR?branch=master)
 [![CRAN](http://www.r-pkg.org/badges/version/MarkowitzR)](https://cran.r-project.org/package=MarkowitzR)
 [![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=green)](http://www.r-pkg.org/pkg/MarkowitzR)
