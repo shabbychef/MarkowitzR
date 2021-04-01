@@ -10,7 +10,7 @@
 VMAJOR 						 = 1
 VMINOR 						 = 0
 VPATCH  					 = 2
-VDEV 							 = .0001
+VDEV 							 = .0002
 #VDEV 							 =
 PKG_NAME 					:= MarkowitzR
 

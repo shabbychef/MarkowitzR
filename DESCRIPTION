@@ -4,8 +4,8 @@ Authors@R: c(person(c("Steven", "E."), "Pav",
     role=c("aut","cre"),
     email="shabbychef@gmail.com",
     comment = c(ORCID = "0000-0002-4197-6195")))
-Version: 1.0.2.0001
-Date: 2020-01-15
+Version: 1.0.2.0002
+Date: 2021-04-01
 License: LGPL-3
 Title: Statistical Significance of the Markowitz Portfolio
 BugReports: https://github.com/shabbychef/MarkowitzR/issues
@@ -21,7 +21,7 @@ Suggests:
     sandwich,
     SharpeR,
     testthat, 
-    knitr
+    formatR,    knitr
 URL: https://github.com/shabbychef/MarkowitzR
 VignetteBuilder: knitr
 Collate:

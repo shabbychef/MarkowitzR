@@ -25,6 +25,7 @@ Suggests:
     sandwich,
     SharpeR,
     testthat, 
+    formatR,dnl do not know why
     knitr
 URL: https://github.com/shabbychef/MarkowitzR
 VignetteBuilder: knitr
