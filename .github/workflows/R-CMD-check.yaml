@@ -72,6 +72,7 @@ jobs:
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
           remotes::install_cran("covr")
+          remotes::install_cran("tinytex")
           tinytex::parse_install(text = "! LaTeX Error: File `amsthm.sty' not found.")
         shell: Rscript {0}
 
