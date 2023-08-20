@@ -3,6 +3,8 @@
 \docType{package}
 \name{MarkowitzR}
 \alias{MarkowitzR}
+\alias{_PACKAGE}
+\alias{MarkowitzR-package}
 \title{statistics concerning the Markowitz portfolio}
 \description{
 Inference on the Markowitz portfolio.
@@ -60,7 +62,18 @@ Brandt, Michael W. "Portfolio Choice Problems." Handbook of Financial
 Econometrics 1 (2009): 269--336. 
 \url{https://faculty.fuqua.duke.edu/~mbrandt/papers/published/portreview.pdf}
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/shabbychef/MarkowitzR}
+  \item Report bugs at \url{https://github.com/shabbychef/MarkowitzR/issues}
+}
+
+}
 \author{
 Steven E. Pav \email{shabbychef@gmail.com}
+
+\strong{Maintainer}: Steven E. Pav \email{shabbychef@gmail.com} (\href{https://orcid.org/0000-0002-4197-6195}{ORCID})
+
 }
 \keyword{package}

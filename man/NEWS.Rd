@@ -9,6 +9,13 @@ News for package \sQuote{MarkowitzR}
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\MarkowitzR}{\CRANpkg{MarkowitzR}}
 }
+\section{Changes in \MarkowitzR{} Version 1.0.3 (2023-08-20) }{
+
+\itemize{
+\item fix package documentation.
+}
+}
+
 \section{Changes in \MarkowitzR{} Version 1.0.2 (2020-01-07) }{
 
 \itemize{
