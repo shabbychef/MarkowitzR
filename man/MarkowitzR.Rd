@@ -41,7 +41,7 @@ GNU Lesser General Public License for more details.
 
 \references{
 Pav, S. E. "Asymptotic Distribution of the Markowitz Portfolio."
-2013 \url{http://arxiv.org/abs/1312.0557}
+2013 \url{https://arxiv.org/abs/1312.0557}
 
 Pav, S. E. "Portfolio Inference with this One Weird Trick."
 R in Finance, 2014 \url{http://past.rinfinance.com/agenda/2014/talk/StevenPav.pdf}
@@ -53,14 +53,14 @@ Efficient Portfolio Weights." The Journal of Finance 54, no. 2 (1999):
 Bodnar, Taras and Okhrin, Yarema. "On the Product of Inverse Wishart
 and Normal Distributions with Applications to Discriminant Analysis 
 and Portfolio Theory." Scandinavian Journal of Statistics 38, no. 2 (2011):
-311--331. \url{http://dx.doi.org/10.1111/j.1467-9469.2011.00729.x}
+311--331. \doi{10.1111/j.1467-9469.2011.00729.x}
 
 Markowitz, Harry. "Portfolio Selection." The Journal of Finance 7, no. 1
 (1952): 77--91. \url{https://www.jstor.org/stable/2975974}
 
 Brandt, Michael W. "Portfolio Choice Problems." Handbook of Financial
 Econometrics 1 (2009): 269--336. 
-\url{https://faculty.fuqua.duke.edu/~mbrandt/papers/published/portreview.pdf}
+\url{https://scholars.duke.edu/publication/964964}
 }
 \seealso{
 Useful links:

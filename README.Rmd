@@ -36,9 +36,9 @@ library(MarkowitzR)
 # MarkowitzR
 
 [![Build Status](https://github.com/shabbychef/MarkowitzR/workflows/R-CMD-check/badge.svg)](https://github.com/shabbychef/MarkowitzR/actions)
-[![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](http://codecov.io/github/shabbychef/MarkowitzR?branch=master)
+[![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](https://app.codecov.io/github/shabbychef/MarkowitzR?branch=master)
 [![CRAN](http://www.r-pkg.org/badges/version/MarkowitzR)](https://cran.r-project.org/package=MarkowitzR)
-[![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=green)](http://www.r-pkg.org/pkg/MarkowitzR)
+[![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=green)](https://www.r-pkg.org:443/pkg/MarkowitzR)
 [![Total](http://cranlogs.r-pkg.org/badges/grand-total/MarkowitzR?color=green)](http://www.r-pkg.org/pkg/MarkowitzR)
 
 
@@ -50,7 +50,7 @@ A number of utilities for dealing with the Markowitz portfolio.
 ## Installation
 
 This package may be installed from CRAN; the latest version may be
-found on [github](https://www.github.com/shabbychef/MarkowitzR "MarkowitzR")
+found on [github](https://github.com/shabbychef/MarkowitzR "MarkowitzR")
 via devtools:
 
 ```{r install,eval=FALSE,echo=TRUE}
