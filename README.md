@@ -6,7 +6,7 @@
 [![codecov.io](http://codecov.io/github/shabbychef/MarkowitzR/coverage.svg?branch=master)](https://app.codecov.io/github/shabbychef/MarkowitzR?branch=master)
 [![CRAN](http://www.r-pkg.org/badges/version/MarkowitzR)](https://cran.r-project.org/package=MarkowitzR)
 [![Downloads](http://cranlogs.r-pkg.org/badges/MarkowitzR?color=green)](https://www.r-pkg.org:443/pkg/MarkowitzR)
-[![Total](http://cranlogs.r-pkg.org/badges/grand-total/MarkowitzR?color=green)](http://www.r-pkg.org/pkg/MarkowitzR)
+[![Total](http://cranlogs.r-pkg.org/badges/grand-total/MarkowitzR?color=green)](https://www.r-pkg.org:443/pkg/MarkowitzR)
 
 
 
